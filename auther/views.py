@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 
-from api.models import User, Role, Perm
-from api.serializers import PermSerializer, RoleSerializer, UserSerializer
+from auther.models import User, Role, Perm
+from auther.serializers import PermSerializer, RoleSerializer, UserSerializer
 
 
 class PermViewSet(viewsets.ModelViewSet):

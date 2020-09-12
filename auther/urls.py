@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from api.views import PermViewSet, RoleViewSet, UserViewSet
+from auther.views import PermViewSet, RoleViewSet, UserViewSet
 
 router = routers.DefaultRouter()
 router.register(r'perms', PermViewSet)

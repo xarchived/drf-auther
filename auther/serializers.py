@@ -1,6 +1,6 @@
 from rest_framework.relations import PrimaryKeyRelatedField
 
-from api.models import User, Role, Perm
+from auther.models import User, Role, Perm
 from fancy.serializers import FancySerializer
 
 
