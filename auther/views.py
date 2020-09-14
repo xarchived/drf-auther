@@ -1,7 +1,12 @@
 from rest_framework import viewsets
 
-from auther.models import User, Role, Perm
-from auther.serializers import PermSerializer, RoleSerializer, UserSerializer
+from auther.models import Domain, Role, Perm, User
+from auther.serializers import DomainSerializer, PermSerializer, RoleSerializer, UserSerializer
+
+
+class DomainViewSet(viewsets.ModelViewSet):
+    queryset = Domain.objects.all()
+    serializer_class = DomainSerializer
 
 
 class PermViewSet(viewsets.ModelViewSet):
