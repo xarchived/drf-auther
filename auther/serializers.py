@@ -1,8 +1,8 @@
+from fancy.serializers import FancySerializer
 from rest_framework.fields import CharField
 from rest_framework.relations import PrimaryKeyRelatedField
 
 from auther.models import Domain, Role, User, Perm
-from fancy.serializers import FancySerializer
 
 
 # region basic serializers
