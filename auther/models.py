@@ -24,5 +24,5 @@ class User(models.Model):
     username = models.TextField(unique=True, null=False)
     password = models.BinaryField(null=False)
     avatar_pic = models.TextField(null=True)
-    domain_id = models.ForeignKey(Domain, on_delete=models.RESTRICT, related_name='users', null=True)
+    domain = models.ForeignKey(Domain, on_delete=models.RESTRICT, related_name='users', null=True)
     roles = models.ManyToManyField(Role, related_name='users')
