@@ -8,10 +8,10 @@ class Domain(models.Model):
 
 class Perm(models.Model):
     method = models.TextField(null=False)
-    path = models.TextField(null=False)
+    re_path = models.TextField(null=False)
 
     class Meta:
-        unique_together = ['method', 'path']
+        unique_together = ['method', 're_path']
 
 
 class Role(models.Model):
@@ -22,7 +22,7 @@ class Role(models.Model):
 class User(models.Model):
     name = models.TextField(null=False)
     username = models.TextField(unique=True, null=False)
-    password = models.BinaryField(null=False)
+    password = models.TextField(null=False)
     avatar_pic = models.TextField(null=True)
     domain = models.ForeignKey(Domain, on_delete=models.RESTRICT, related_name='users', null=True)
     roles = models.ManyToManyField(Role, related_name='users')
