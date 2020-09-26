@@ -59,7 +59,7 @@ class PermSerializer(FancySerializer):
 
 
 class RoleSerializer(FancySerializer):
-    name = CharField(min_length=4, max_length=64)
+    name = CharField(min_length=3, max_length=64)
     users_ids = PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
     users = BasicUserSerializer(many=True, required=False)
     perms_ids = PrimaryKeyRelatedField(source='perms', many=True, queryset=Perm.objects.all(), required=False)
@@ -71,7 +71,7 @@ class RoleSerializer(FancySerializer):
 
 
 class UserSerializer(FancySerializer):
-    name = CharField(min_length=4, max_length=64)
+    name = CharField(min_length=3, max_length=64)
     username = CharField(min_length=4, max_length=64)
     password = CharField(min_length=6, max_length=64, write_only=True)
     avatar_pic = CharField(min_length=64, max_length=128)
