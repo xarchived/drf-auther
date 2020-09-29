@@ -1,4 +1,5 @@
 from fancy.serializers import FancySerializer
+from rest_framework import serializers
 from rest_framework.fields import CharField
 from rest_framework.relations import PrimaryKeyRelatedField
 
@@ -84,4 +85,10 @@ class UserSerializer(FancySerializer):
         model = User
         exclude = []
 
+
 # endregion
+
+# noinspection PyAbstractClass
+class LoginSerializer(serializers.Serializer):
+    username = CharField(min_length=4, max_length=64)
+    password = CharField(min_length=6, max_length=64, write_only=True)
