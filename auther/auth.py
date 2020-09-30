@@ -21,7 +21,7 @@ def authenticate(request):
     except User.DoesNotExist:
         raise APIException('Username not found')
 
-    if bcrypt.checkpw(password.encode('utf-8'), bytes(user.password, encoding='utf-8')):
+    if bcrypt.checkpw(bytes(password, encoding='utf-8'), bytes(user.password, encoding='utf-8')):
         return user
 
     raise APIException('Wrong password')
