@@ -21,7 +21,7 @@ class AuthMiddleware:
 
     @staticmethod
     def _hash_password(request):
-        password_pattern = b'"password": ".*"'
+        password_pattern = b'"password"\\s*:\\s*".*"'
         password = re.search(password_pattern, request.body)
         if request.path != settings.AUTHER['LOGIN_PAGE'] and password:
             password = password.group(0)
