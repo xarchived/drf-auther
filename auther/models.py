@@ -7,11 +7,8 @@ class Domain(models.Model):
 
 
 class Perm(models.Model):
-    method = models.TextField(null=False)
-    re_path = models.TextField(null=False)
-
-    class Meta:
-        unique_together = ['method', 're_path']
+    name = models.TextField(null=True, unique=True)
+    regex = models.TextField(null=False, unique=True)
 
 
 class Role(models.Model):

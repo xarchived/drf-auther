@@ -49,8 +49,8 @@ class DomainSerializer(FancySerializer):
 
 
 class PermSerializer(FancySerializer):
-    method = CharField(min_length=3, max_length=9)
-    re_path = CharField(min_length=1, max_length=64)
+    name = CharField(min_length=3, max_length=9, allow_blank=True)
+    regex = CharField(min_length=1, max_length=64)
     roles_ids = PrimaryKeyRelatedField(source='roles', many=True, queryset=Role.objects.all(), required=False)
     roles = BasicRoleSerializer(many=True, required=False)
 

@@ -4,20 +4,57 @@ import re
 import bcrypt
 from django.conf import settings
 from redisary import Redisary
-from rest_framework.exceptions import APIException, NotFound
+from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 
-from auther.models import Perm
+from auther.models import Perm, Role
 
 
-# TODO: Raise better exceptions
 class AuthMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         self.tokens = Redisary(db=settings.AUTHER['REDIS_DB'])
 
-        self.roles = dict()
+        self.patterns = dict()
+        for role in Role.objects.all():
+            self.patterns[role.name] = [perm.regex for perm in role.perms.all()]
+
+        self.patterns['anyone'] = []
         for perm in Perm.objects.all():
-            self.roles[perm.method + perm.re_path] = {role.name for role in perm.roles.all()}
+            if not perm.roles.all():
+                self.patterns['anyone'].append(perm.regex)
+                for role in self.patterns:
+                    self.patterns[role].append(perm.regex)
+
+    def _authorized(self, request, role):
+        request_line = f'{request.method} {request.path}'
+
+        for pattern in self.patterns[role]:
+            if re.match(pattern, request_line):
+                return True
+
+        return False
+
+    def _fill_user(self, request):
+        request.auth = None
+        token = request.COOKIES.get(settings.AUTHER['TOKEN_NAME'])
+        if token and token in self.tokens:
+            request.auth = json.loads(self.tokens[token])
+
+    def _check_permission(self, request):
+        if not self.patterns:
+            return
+
+        if self._authorized(request, 'anyone'):
+            return
+
+        if request.auth is None:
+            raise NotAuthenticated('Token dose not exist')
+
+        for role in request.auth['roles']:
+            if self._authorized(request, role):
+                return
+
+        raise PermissionDenied('Access Denied')
 
     @staticmethod
     def _hash_password(request):
@@ -29,33 +66,6 @@ class AuthMiddleware:
             hashed = bcrypt.hashpw(password, bcrypt.gensalt())
             new_password = b'"password": "' + hashed + b'"'
             request._body = re.sub(password_pattern, new_password, request.body)
-
-    def _check_permission(self, request):
-        if not self.roles:
-            return
-
-        k = request.method + request.path
-        r = self.roles.get(k)
-
-        if r is None:
-            raise NotFound()
-
-        if not r:
-            return
-
-        if request.auth is None:
-            raise APIException('Token dose not exist')
-
-        if set(request.auth.roles) & r:
-            return
-
-        raise APIException('Access Denied')
-
-    def _fill_user(self, request):
-        request.auth = None
-        token = request.COOKIES.get(settings.AUTHER['TOKEN_NAME'])
-        if token and token in self.tokens:
-            request.auth = json.loads(self.tokens[token])
 
     def __call__(self, request):
         self._fill_user(request)
