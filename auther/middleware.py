@@ -18,12 +18,13 @@ class AuthMiddleware:
         for role in Role.objects.all():
             self.patterns[role.name] = [perm.regex for perm in role.perms.all()]
 
-        self.patterns['anyone'] = []
-        for perm in Perm.objects.all():
-            if not perm.roles.all():
-                self.patterns['anyone'].append(perm.regex)
-                for role in self.patterns:
-                    self.patterns[role].append(perm.regex)
+        if self.patterns:
+            self.patterns['anyone'] = []
+            for perm in Perm.objects.all():
+                if not perm.roles.all():
+                    self.patterns['anyone'].append(perm.regex)
+                    for role in self.patterns:
+                        self.patterns[role].append(perm.regex)
 
     def _authorized(self, request, role):
         request_line = f'{request.method} {request.path}'
