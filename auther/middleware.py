@@ -18,6 +18,14 @@ class AuthMiddleware:
         for role in Role.objects.all():
             self.patterns[role.name] = [perm.regex for perm in role.perms.all()]
 
+        empty = True
+        for role, pattern in self.patterns.items():
+            if pattern:
+                empty = False
+
+        if empty:
+            self.patterns = dict()
+
         if self.patterns:
             self.patterns['anyone'] = []
             for perm in Perm.objects.all():
