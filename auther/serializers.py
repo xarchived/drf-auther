@@ -1,3 +1,4 @@
+from django.conf import settings
 from fancy.serializers import FancySerializer
 from rest_framework import serializers
 from rest_framework.fields import CharField
@@ -84,6 +85,18 @@ class UserSerializer(FancySerializer):
     class Meta:
         model = User
         exclude = []
+
+    def create(self, validated_data):
+        user = super(UserSerializer, self).create(validated_data)
+
+        # Create a role with same name as model and add it to user
+        default_role = settings.AUTHER.get('DEFAULT_ROLE')
+        if default_role:
+            role_name = self.Meta.model.__name__.lower()
+            role, _ = Role.objects.get_or_create(name=role_name)
+            user.roles.add(role.id)
+
+        return user
 
 
 # endregion
