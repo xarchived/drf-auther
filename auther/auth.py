@@ -1,6 +1,4 @@
 import json
-from base64 import b64encode
-from os import urandom
 
 import bcrypt
 from django.conf import settings
@@ -8,6 +6,7 @@ from redisary import Redisary
 from rest_framework.exceptions import APIException
 
 from auther.models import User
+from auther.utils import generate_token
 
 tokens = Redisary(db=settings.AUTHER['REDIS_DB'])
 
@@ -28,8 +27,7 @@ def authenticate(request):
 
 
 def login(user):
-    token = b64encode(urandom(33))
-    token = str(token, encoding='utf-8')
+    token = generate_token()
 
     payload = {
         'id': user.id,
