@@ -22,4 +22,4 @@ class User(models.Model):
     password = models.TextField(null=False)
     avatar_pic = models.TextField(null=True)
     domain = models.ForeignKey(Domain, on_delete=models.RESTRICT, related_name='users', null=True)
-    role = models.ForeignKey(Role, on_delete=models.RESTRICT, related_name='users')
+    role = models.ForeignKey(Role, on_delete=models.RESTRICT, related_name='users', null=True)
