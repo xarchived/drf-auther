@@ -59,9 +59,8 @@ class AuthMiddleware:
         if request.auth is None:
             raise NotAuthenticated('Token dose not exist')
 
-        for role in request.auth['roles']:
-            if self._authorized(request, role):
-                return
+        if self._authorized(request, request.auth['role']):
+            return
 
         raise PermissionDenied('Access Denied')
 

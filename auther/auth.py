@@ -28,7 +28,6 @@ def authenticate(request):
 
 
 def login(user):
-    roles = user.roles.all()
     token = b64encode(urandom(33))
     token = str(token, encoding='utf-8')
 
@@ -38,7 +37,7 @@ def login(user):
         'username': user.username,
         'avatar_pic': user.avatar_pic,
         'domain_id': user.domain_id,
-        'roles': [role.name for role in roles]
+        'role': user.role.name
     }
     tokens[token] = json.dumps(payload)
 

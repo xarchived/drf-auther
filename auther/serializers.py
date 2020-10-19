@@ -30,7 +30,7 @@ class BasicRoleSerializer(FancySerializer):
 class BasicUserSerializer(FancySerializer):
     class Meta:
         model = User
-        exclude = ['password', 'roles']
+        exclude = ['password']
 
 
 # endregion
@@ -79,8 +79,8 @@ class UserSerializer(FancySerializer):
     avatar_pic = CharField(min_length=64, max_length=128, required=False)
     domain_id = PrimaryKeyRelatedField(source='domain', queryset=Domain.objects.all(), required=False)
     domain = BasicDomainSerializer(required=False)
-    roles_ids = PrimaryKeyRelatedField(source='roles', many=True, queryset=Role.objects.all(), required=False)
-    roles = BasicRoleSerializer(many=True, required=False)
+    role_id = PrimaryKeyRelatedField(source='role', queryset=Role.objects.all(), required=False)
+    role = BasicRoleSerializer(required=False)
 
     class Meta:
         model = User
@@ -94,7 +94,7 @@ class UserSerializer(FancySerializer):
         if default_role:
             role_name = self.Meta.model.__name__.lower()
             role, _ = Role.objects.get_or_create(name=role_name)
-            user.roles.add(role.id)
+            user.role_id = role.id
 
         return user
 
