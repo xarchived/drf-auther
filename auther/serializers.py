@@ -87,16 +87,14 @@ class UserSerializer(FancySerializer):
         exclude = []
 
     def create(self, validated_data):
-        user = super(UserSerializer, self).create(validated_data)
-
         # Create a role with same name as model and add it to user
         default_role = settings.AUTHER.get('DEFAULT_ROLE')
         if default_role:
             role_name = self.Meta.model.__name__.lower()
             role, _ = Role.objects.get_or_create(name=role_name)
-            user.role_id = role.id
+            self.validated_data['role_id'] = role.id
 
-        return user
+        return super(UserSerializer, self).create(validated_data)
 
 
 # endregion
