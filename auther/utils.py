@@ -1,19 +1,17 @@
-import random
+import secrets
 import string
 
 import bcrypt
 
 
-def generate_random_string(length: int) -> str:
-    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=length))
-
-
-def generate_password(length: int) -> str:
-    return generate_random_string(length)
+def generate_password(length: int) -> bytes:
+    alphabet = string.ascii_letters + string.digits
+    password = ''.join(secrets.choice(alphabet) for _ in range(length))
+    return bytes(password, encoding='ascii')
 
 
 def generate_token() -> str:
-    return generate_random_string(53)
+    return secrets.token_urlsafe(53)
 
 
 def hash_password(password: bytes) -> bytes:
