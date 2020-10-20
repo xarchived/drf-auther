@@ -1,12 +1,11 @@
 import json
 
-import bcrypt
 from django.conf import settings
 from redisary import Redisary
 from rest_framework.exceptions import APIException
 
 from auther.models import User
-from auther.utils import generate_token
+from auther.utils import generate_token, check_password
 
 tokens = Redisary(db=settings.AUTHER['REDIS_DB'])
 
@@ -20,7 +19,7 @@ def authenticate(request):
     except User.DoesNotExist:
         raise APIException('Username not found')
 
-    if bcrypt.checkpw(bytes(password, encoding='utf-8'), bytes(user.password, encoding='utf-8')):
+    if check_password(password, user.password):
         return user
 
     raise APIException('Wrong password')

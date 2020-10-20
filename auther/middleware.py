@@ -1,12 +1,12 @@
 import json
 import re
 
-import bcrypt
 from django.conf import settings
 from redisary import Redisary
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 
 from auther.models import Perm, Role
+from auther.utils import hash_password
 
 
 class AuthMiddleware:
@@ -71,9 +71,9 @@ class AuthMiddleware:
         if request.path != settings.AUTHER['LOGIN_PAGE'] and password:
             password = password.group(0)
             password = password[13:-1]
-            hashed = bcrypt.hashpw(password, bcrypt.gensalt())
-            new_password = b'"password": "' + hashed + b'"'
-            request._body = re.sub(password_pattern, new_password, request.body)
+            hashed = hash_password(password)
+            password_field = b'"password": "' + hashed + b'"'
+            request._body = re.sub(password_pattern, password_field, request.body)
 
     def __call__(self, request):
         self._fill_user(request)
