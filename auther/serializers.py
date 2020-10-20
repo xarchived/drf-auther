@@ -6,8 +6,9 @@ from rest_framework.relations import PrimaryKeyRelatedField
 
 from auther.models import Domain, Role, User, Perm
 
-
 # region basic serializers
+from auther.utils import generate_password, hash_password
+
 
 class BasicDomainSerializer(FancySerializer):
     class Meta:
@@ -75,7 +76,7 @@ class RoleSerializer(FancySerializer):
 class UserSerializer(FancySerializer):
     name = CharField(min_length=3, max_length=64)
     username = CharField(min_length=4, max_length=64)
-    password = CharField(min_length=6, max_length=64, write_only=True)
+    password = CharField(min_length=6, max_length=64, write_only=True, required=False)
     avatar_pic = CharField(min_length=64, max_length=128, required=False)
     domain_id = PrimaryKeyRelatedField(source='domain', queryset=Domain.objects.all(), required=False)
     domain = BasicDomainSerializer(required=False)
@@ -87,6 +88,8 @@ class UserSerializer(FancySerializer):
         exclude = []
 
     def create(self, validated_data):
+        random_password = None
+
         # Create a role with same name as model and add it to user
         default_role = settings.AUTHER.get('DEFAULT_ROLE')
         if default_role and 'role_id' not in self.initial_data and 'role' not in self.initial_data:
@@ -94,7 +97,20 @@ class UserSerializer(FancySerializer):
             role, _ = Role.objects.get_or_create(name=role_name)
             self.validated_data['role_id'] = role.id
 
-        return super(UserSerializer, self).create(validated_data)
+        # If password is not provided we generate a random one
+        if 'password' not in self.initial_data:
+            random_password = generate_password(8)
+            self.validated_data['password'] = hash_password(random_password)
+
+        # Store record into database
+        user = super(UserSerializer, self).create(validated_data)
+
+        # Disable write only option for random passwords
+        if random_password:
+            self.fields['password'].write_only = False
+            user.password = str(random_password, encoding='ascii')
+
+        return user
 
 
 # endregion
