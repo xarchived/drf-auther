@@ -13,6 +13,7 @@ class AuthMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
         self.tokens = Redisary(db=settings.AUTHER['REDIS_DB'])
+        self.password_pattern = b'"password"\\s*:\\s*".*"'
 
         self.patterns = dict()
         for role in Role.objects.all():
@@ -64,16 +65,20 @@ class AuthMiddleware:
 
         raise PermissionDenied('Access Denied')
 
-    @staticmethod
-    def _hash_password(request):
-        password_pattern = b'"password"\\s*:\\s*".*"'
-        password = re.search(password_pattern, request.body)
-        if request.path != settings.AUTHER['LOGIN_PAGE'] and password:
+    def _extract_password(self, request):
+        password = re.search(self.password_pattern, request.body)
+        if password:
             password = password.group(0)
             password = password[13:-1]
+            return password
+        return None
+
+    def _hash_password(self, request):
+        password = self._extract_password(request)
+        if request.path != settings.AUTHER['LOGIN_PAGE'] and password:
             hashed = hash_password(password)
             password_field = b'"password": "' + hashed + b'"'
-            request._body = re.sub(password_pattern, password_field, request.body)
+            request._body = re.sub(self.password_pattern, password_field, request.body)
 
     def __call__(self, request):
         self._fill_user(request)
