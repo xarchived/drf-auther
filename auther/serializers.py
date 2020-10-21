@@ -75,8 +75,8 @@ class RoleSerializer(FancySerializer):
 
 class UserSerializer(FancySerializer):
     name = CharField(min_length=3, max_length=64)
-    username = CharField(min_length=4, max_length=64)
-    password = CharField(min_length=6, max_length=64, write_only=True, required=False)
+    username = CharField(min_length=6, max_length=64)
+    password = CharField(min_length=8, max_length=64, write_only=True, required=False)
     avatar_pic = CharField(min_length=64, max_length=128, required=False)
     domain_id = PrimaryKeyRelatedField(source='domain', queryset=Domain.objects.all(), required=False)
     domain = BasicDomainSerializer(required=False)
