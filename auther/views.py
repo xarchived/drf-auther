@@ -1,3 +1,5 @@
+from urllib.request import Request
+
 from django.conf import settings
 from fancy.viewsets import FancyViewSet
 from rest_framework.generics import GenericAPIView
@@ -31,7 +33,7 @@ class UserViewSet(FancyViewSet):
 class LoginView(GenericAPIView):
     serializer_class = LoginSerializer
 
-    def post(self, request):
+    def post(self, request: Request) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 

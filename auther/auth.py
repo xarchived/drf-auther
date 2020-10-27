@@ -3,6 +3,7 @@ import json
 from django.conf import settings
 from redisary import Redisary
 from rest_framework.exceptions import APIException
+from rest_framework.request import Request
 
 from auther.models import User
 from auther.utils import generate_token, check_password
@@ -10,7 +11,7 @@ from auther.utils import generate_token, check_password
 tokens = Redisary(db=settings.AUTHER['REDIS_DB'])
 
 
-def authenticate(request):
+def authenticate(request: Request) -> User:
     username = request.data['username']
     password = request.data['password']
 
@@ -25,7 +26,7 @@ def authenticate(request):
     raise APIException('Wrong password')
 
 
-def login(user):
+def login(user: User) -> str:
     token = generate_token()
 
     payload = {
@@ -33,7 +34,7 @@ def login(user):
         'name': user.name,
         'username': user.username,
         'avatar_pic': user.avatar_pic,
-        'domain_id': user.domain_id,
+        'domain_id': user.domain.id,
         'role': user.role.name
     }
     tokens[token] = json.dumps(payload)

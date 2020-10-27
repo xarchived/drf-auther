@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.conf import settings
 from fancy.serializers import FancySerializer
 from rest_framework import serializers
@@ -5,7 +7,6 @@ from rest_framework.fields import CharField
 from rest_framework.relations import PrimaryKeyRelatedField
 
 from auther.models import Domain, Role, User, Perm
-
 # region basic serializers
 from auther.utils import generate_password, hash_password
 
@@ -87,7 +88,7 @@ class UserSerializer(FancySerializer):
         model = User
         exclude = []
 
-    def create(self, validated_data):
+    def create(self, validated_data: dict) -> Any:
         random_password = None
 
         # Create a role with same name as model and add it to user
