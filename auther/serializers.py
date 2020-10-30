@@ -101,7 +101,8 @@ class UserSerializer(FancySerializer):
         # If password is not provided we generate a random one
         if 'password' not in self.initial_data:
             random_password = generate_password(8)
-            self.validated_data['password'] = hash_password(random_password)
+            hashed_password = str(hash_password(random_password), encoding='ascii')
+            self.validated_data['password'] = hashed_password
 
         # Store record into database
         user = super(UserSerializer, self).create(validated_data)
