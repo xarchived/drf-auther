@@ -47,10 +47,10 @@ class AuthMiddleware:
         return False
 
     def _fill_user(self, request: WSGIRequest) -> None:
-        request.auth = None
+        request.credential = None
         token = request.COOKIES.get(settings.AUTHER['TOKEN_NAME'])
         if token and token in self.tokens:
-            request.auth = json.loads(self.tokens[token])
+            request.credential = json.loads(self.tokens[token])
 
     def _check_permission(self, request: WSGIRequest) -> None:
         if not self.patterns:
@@ -59,11 +59,11 @@ class AuthMiddleware:
         if self._authorized(request, 'anyone'):
             return
 
-        if hasattr(request, 'auth'):
-            if request.auth is None:
+        if hasattr(request, 'credential'):
+            if request.credential is None:
                 raise NotAuthenticated('Token dose not exist')
 
-            if self._authorized(request, request.auth['role']):
+            if self._authorized(request, request.credential['role']):
                 return
 
         raise PermissionDenied('Access Denied')
