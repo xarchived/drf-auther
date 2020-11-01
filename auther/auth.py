@@ -34,8 +34,8 @@ def login(user: User) -> str:
         'name': user.name,
         'username': user.username,
         'avatar_pic': user.avatar_pic,
-        'domain_id': user.domain.id if user.domain else None,
-        'role': user.role.name
+        'domain': user.domain.address if user.domain else None,
+        'role': user.role.name if user.role else None
     }
     tokens[token] = json.dumps(payload)
 

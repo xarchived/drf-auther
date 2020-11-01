@@ -7,7 +7,7 @@ from django.core.handlers.wsgi import WSGIRequest
 from redisary import Redisary
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 
-from auther.models import Perm, Role
+from auther.models import Perm, Role, Domain, User
 from auther.utils import hash_password
 
 
@@ -50,7 +50,15 @@ class AuthMiddleware:
         request.credential = None
         token = request.COOKIES.get(settings.AUTHER['TOKEN_NAME'])
         if token and token in self.tokens:
-            request.credential = json.loads(self.tokens[token])
+            raw = json.loads(self.tokens[token])
+            user = User(
+                id=raw['id'],
+                name=raw['name'],
+                username=raw['username'],
+                avatar_pic=raw['avatar_pic'],
+                role=Role(name=raw['role']),
+                domain=Domain(address=raw['domain']))
+            request.credential = user
 
     def _check_permission(self, request: WSGIRequest) -> None:
         if not self.patterns:
@@ -63,7 +71,7 @@ class AuthMiddleware:
             if request.credential is None:
                 raise NotAuthenticated('Token dose not exist')
 
-            if self._authorized(request, request.credential['role']):
+            if self._authorized(request, request.credential.role.name):
                 return
 
         raise PermissionDenied('Access Denied')
