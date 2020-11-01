@@ -46,7 +46,7 @@ class AuthMiddleware:
 
         return False
 
-    def _fill_user(self, request: WSGIRequest) -> None:
+    def _fill_credential(self, request: WSGIRequest) -> None:
         request.credential = None
         token = request.COOKIES.get(settings.AUTHER['TOKEN_NAME'])
         if token and token in self.tokens:
@@ -92,7 +92,7 @@ class AuthMiddleware:
             request._body = re.sub(self.password_pattern, password_field, request.body)
 
     def __call__(self, request: WSGIRequest) -> Any:
-        self._fill_user(request)
+        self._fill_credential(request)
         self._check_permission(request)
         self._hash_password(request)
 
