@@ -2,12 +2,9 @@ from typing import Any
 
 from django.conf import settings
 from fancy.serializers import FancySerializer
-from rest_framework import serializers
-from rest_framework.fields import CharField
-from rest_framework.relations import PrimaryKeyRelatedField
+from rest_framework import serializers, fields, relations
 
 from auther.models import Domain, Role, User, Perm
-# region basic serializers
 from auther.utils import generate_password, hash_password
 
 
@@ -35,15 +32,10 @@ class BasicUserSerializer(FancySerializer):
         exclude = ['password']
 
 
-# endregion
-
-
-# region serializers
-
 class DomainSerializer(FancySerializer):
-    name = CharField(min_length=1, max_length=99)
-    address = CharField(min_length=4, max_length=99)
-    users_ids = PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
+    name = fields.CharField(min_length=1, max_length=99)
+    address = fields.CharField(min_length=4, max_length=99)
+    users_ids = relations.PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
     users = BasicUserSerializer(many=True, required=False)
 
     class Meta:
@@ -52,9 +44,9 @@ class DomainSerializer(FancySerializer):
 
 
 class PermSerializer(FancySerializer):
-    name = CharField(min_length=3, max_length=9, allow_blank=True)
-    regex = CharField(min_length=1, max_length=64)
-    roles_ids = PrimaryKeyRelatedField(source='roles', many=True, queryset=Role.objects.all(), required=False)
+    name = fields.CharField(min_length=3, max_length=9, allow_blank=True)
+    regex = fields.CharField(min_length=1, max_length=64)
+    roles_ids = relations.PrimaryKeyRelatedField(source='roles', many=True, queryset=Role.objects.all(), required=False)
     roles = BasicRoleSerializer(many=True, required=False)
 
     class Meta:
@@ -63,10 +55,10 @@ class PermSerializer(FancySerializer):
 
 
 class RoleSerializer(FancySerializer):
-    name = CharField(min_length=3, max_length=64)
-    users_ids = PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
+    name = fields.CharField(min_length=3, max_length=64)
+    users_ids = relations.PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
     users = BasicUserSerializer(many=True, required=False)
-    perms_ids = PrimaryKeyRelatedField(source='perms', many=True, queryset=Perm.objects.all(), required=False)
+    perms_ids = relations.PrimaryKeyRelatedField(source='perms', many=True, queryset=Perm.objects.all(), required=False)
     perms = BasicPermSerializer(many=True, required=False)
 
     class Meta:
@@ -75,13 +67,13 @@ class RoleSerializer(FancySerializer):
 
 
 class UserSerializer(FancySerializer):
-    name = CharField(min_length=3, max_length=64)
-    username = CharField(min_length=6, max_length=64)
-    password = CharField(min_length=8, max_length=64, write_only=True, required=False)
-    avatar_pic = CharField(min_length=64, max_length=128, required=False)
-    domain_id = PrimaryKeyRelatedField(source='domain', queryset=Domain.objects.all(), required=False)
+    name = fields.CharField(min_length=3, max_length=64)
+    username = fields.CharField(min_length=6, max_length=64)
+    password = fields.CharField(min_length=8, max_length=64, write_only=True, required=False)
+    avatar_pic = fields.CharField(min_length=64, max_length=128, required=False)
+    domain_id = relations.PrimaryKeyRelatedField(source='domain', queryset=Domain.objects.all(), required=False)
     domain = BasicDomainSerializer(required=False)
-    role_id = PrimaryKeyRelatedField(source='role', queryset=Role.objects.all(), required=False)
+    role_id = relations.PrimaryKeyRelatedField(source='role', queryset=Role.objects.all(), required=False)
     role = BasicRoleSerializer(required=False)
 
     class Meta:
@@ -115,9 +107,7 @@ class UserSerializer(FancySerializer):
         return user
 
 
-# endregion
-
 # noinspection PyAbstractClass
 class LoginSerializer(serializers.Serializer):
-    username = CharField(min_length=4, max_length=64)
-    password = CharField(min_length=6, max_length=64, write_only=True)
+    username = fields.CharField(min_length=4, max_length=64)
+    password = fields.CharField(min_length=6, max_length=64, write_only=True)
