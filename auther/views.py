@@ -1,13 +1,12 @@
-from urllib.request import Request
-
 from django.conf import settings
-from fancy.viewsets import FancyViewSet
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
+from urllib.request import Request
 
 from auther.auth import authenticate, login
 from auther.models import Domain, Role, Perm, User
 from auther.serializers import DomainSerializer, PermSerializer, RoleSerializer, UserSerializer, LoginSerializer
+from fancy.viewsets import FancyViewSet
 
 
 class DomainViewSet(FancyViewSet):
@@ -45,6 +44,8 @@ class LoginView(GenericAPIView):
             settings.AUTHER['TOKEN_NAME'],
             token,
             httponly=settings.AUTHER['TOKEN_HTTPONLY'],
-            max_age=settings.AUTHER['TOKEN_EXPIRE'])
+            max_age=settings.AUTHER['TOKEN_EXPIRE'],
+            samesite=settings.AUTHER['TOKEN_SAMESITE'],
+            secure=settings.AUTHER['TOKEN_SECURE'])
 
         return response
