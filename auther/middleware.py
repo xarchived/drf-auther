@@ -55,7 +55,7 @@ class AuthMiddleware:
                 id=raw['id'],
                 name=raw['name'],
                 username=raw['username'],
-                avatar_pic=raw['avatar_pic'],
+                avatar_url=raw['avatar_url'],
                 role=Role(name=raw['role']),
                 domain=Domain(address=raw['domain']))
             request.credential = user
