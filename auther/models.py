@@ -1,22 +1,24 @@
 from django.db import models
 
+from fancy.models import FancyModel
 
-class Domain(models.Model):
+
+class Domain(FancyModel):
     name = models.TextField(unique=True, null=False)
     address = models.TextField(unique=True, null=False)
 
 
-class Perm(models.Model):
+class Perm(FancyModel):
     name = models.TextField(null=True, unique=True)
     regex = models.TextField(null=False, unique=True)
 
 
-class Role(models.Model):
+class Role(FancyModel):
     name = models.TextField(unique=True, null=False)
     perms = models.ManyToManyField(Perm, related_name='roles')
 
 
-class User(models.Model):
+class User(FancyModel):
     name = models.TextField(null=False)
     username = models.TextField(unique=True, null=False, max_length=64)
     password = models.TextField(null=False, max_length=64)
