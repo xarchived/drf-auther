@@ -11,7 +11,7 @@ def generate_password(length: int) -> bytes:
 
 
 def generate_token() -> str:
-    return secrets.token_urlsafe(53)
+    return secrets.token_urlsafe(48)  # 64 characters
 
 
 def hash_password(password: bytes) -> bytes:
