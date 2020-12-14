@@ -33,7 +33,7 @@ def login(user: User) -> str:
         'id': user.id,
         'name': user.name,
         'username': user.username,
-        'avatar_url': user.avatar_url,
+        'avatar_token': user.avatar_token,
         'domain': user.domain.address if user.domain else None,
         'role': user.role.name if user.role else None
     }

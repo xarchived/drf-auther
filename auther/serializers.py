@@ -70,7 +70,7 @@ class UserSerializer(FancySerializer):
     name = fields.CharField(min_length=3, max_length=64)
     username = fields.CharField(min_length=6, max_length=64)
     password = fields.CharField(min_length=8, max_length=64, write_only=True, required=False)
-    avatar_url = fields.CharField(min_length=64, max_length=128, required=False)
+    avatar_token = fields.CharField(min_length=64, max_length=128, required=False)
     domain_id = relations.PrimaryKeyRelatedField(source='domain', queryset=Domain.objects.all(), required=False)
     domain = BasicDomainSerializer(required=False)
     role_id = relations.PrimaryKeyRelatedField(source='role', queryset=Role.objects.all(), required=False)
