@@ -1,7 +1,7 @@
 from django.conf import settings
 from rest_framework.generics import GenericAPIView
+from rest_framework.request import Request
 from rest_framework.response import Response
-from urllib.request import Request
 
 from auther.auth import authenticate, login
 from auther.models import Domain, Role, Perm, User
