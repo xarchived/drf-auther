@@ -43,7 +43,7 @@ class LoginView(GenericAPIView):
             'id': user.id,
             'name': user.name,
             'avatar_token': user.avatar_token,
-            'role': user.role
+            'role': user.role.name if user.role else None
         })
 
         response.set_cookie(
