@@ -39,7 +39,13 @@ class LoginView(GenericAPIView):
         user = authenticate(request)
         token = login(user)
 
-        response = Response()
+        response = Response({
+            'id': user.id,
+            'name': user.name,
+            'avatar_token': user.avatar_token,
+            'role': user.role
+        })
+
         response.set_cookie(
             settings.AUTHER['TOKEN_NAME'],
             token,
