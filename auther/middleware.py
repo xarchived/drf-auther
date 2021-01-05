@@ -67,12 +67,11 @@ class AuthMiddleware:
         if self._authorized(request, 'anyone'):
             return
 
-        if hasattr(request, 'credential'):
-            if request.credential is None:
-                raise NotAuthenticated('Token dose not exist')
+        if request.credential is None:
+            raise NotAuthenticated('Token dose not exist')
 
-            if self._authorized(request, request.credential.role.name):
-                return
+        if self._authorized(request, request.credential.role.name):
+            return
 
         raise PermissionDenied('Access Denied')
 
