@@ -2,7 +2,7 @@ import json
 
 from django.conf import settings
 from redisary import Redisary
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
 
 from auther.models import User
@@ -18,12 +18,12 @@ def authenticate(request: Request) -> User:
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        raise APIException('Username not found')
+        raise AuthenticationFailed()
 
     if check_password(password, user.password):
         return user
 
-    raise APIException('Wrong password')
+    raise AuthenticationFailed()
 
 
 def login(user: User) -> str:
