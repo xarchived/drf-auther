@@ -3,9 +3,9 @@ import re
 from typing import Any, Callable
 
 from django.conf import settings
-from django.core.handlers.wsgi import WSGIRequest
 from redisary import Redisary
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated
+from rest_framework.request import Request
 
 from auther.models import Perm, Role, Domain, User
 from auther.utils import hash_password
@@ -37,7 +37,7 @@ class AuthMiddleware:
                     for role in self.patterns:
                         self.patterns[role].append(perm.regex)
 
-    def _authorized(self, request: WSGIRequest, role: str) -> bool:
+    def _authorized(self, request: Request, role: str) -> bool:
         request_line = f'{request.method} {request.path}'
 
         for pattern in self.patterns[role]:
@@ -46,7 +46,7 @@ class AuthMiddleware:
 
         return False
 
-    def _fill_credential(self, request: WSGIRequest) -> None:
+    def _fill_credential(self, request: Request) -> None:
         request.credential = None
         token = request.COOKIES.get(settings.AUTHER['TOKEN_NAME'])
         if token and token in self.tokens:
@@ -60,7 +60,7 @@ class AuthMiddleware:
                 domain=Domain(address=raw['domain']))
             request.credential = user
 
-    def _check_permission(self, request: WSGIRequest) -> None:
+    def _check_permission(self, request: Request) -> None:
         if not self.patterns:
             return
 
@@ -76,7 +76,7 @@ class AuthMiddleware:
 
         raise PermissionDenied('Access Denied')
 
-    def _extract_password(self, request: WSGIRequest) -> bytes:
+    def _extract_password(self, request: Request) -> bytes:
         password = re.search(self.password_pattern, request.body)
         if password:
             password = password.group(0)
@@ -84,14 +84,14 @@ class AuthMiddleware:
             return password
         return b''
 
-    def _hash_password(self, request: WSGIRequest) -> None:
+    def _hash_password(self, request: Request) -> None:
         password = self._extract_password(request)
         if request.path != settings.AUTHER['LOGIN_PAGE'] and password:
             hashed = hash_password(password)
             password_field = b'"password": "' + hashed + b'"'
             request._body = re.sub(self.password_pattern, password_field, request.body)
 
-    def __call__(self, request: WSGIRequest) -> Any:
+    def __call__(self, request: Request) -> Any:
         self._fill_credential(request)
         self._check_permission(request)
         self._hash_password(request)
