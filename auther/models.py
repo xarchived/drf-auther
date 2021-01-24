@@ -19,7 +19,7 @@ class Role(FancyModel):
 
 
 class User(FancyModel):
-    name = models.TextField(null=False)
+    name = models.TextField(null=True)
     username = models.TextField(unique=True, null=False, max_length=64)
     password = models.TextField(null=False, max_length=64)
     avatar_token = models.TextField(null=True)

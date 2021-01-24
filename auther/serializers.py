@@ -67,7 +67,7 @@ class RoleSerializer(FancySerializer):
 
 
 class UserSerializer(FancySerializer):
-    name = fields.CharField(min_length=3, max_length=64)
+    name = fields.CharField(min_length=3, max_length=64, required=False, allow_blank=True)
     username = fields.CharField(min_length=6, max_length=64)
     password = fields.CharField(min_length=8, max_length=64, write_only=True, required=False)
     avatar_token = fields.CharField(min_length=64, max_length=128, required=False)
