@@ -8,7 +8,7 @@ from redisary import Redisary
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated, APIException
 from rest_framework.request import Request
 
-from auther.models import Perm, Role, Domain, User
+from auther.models import Role, Domain, User
 from auther.utils import hash_password
 
 
@@ -29,14 +29,6 @@ class AuthMiddleware:
 
         if empty:
             self.patterns = dict()
-
-        if self.patterns:
-            self.patterns['anyone'] = []
-            for perm in Perm.objects.all():
-                if not perm.roles.all():
-                    self.patterns['anyone'].append(perm.regex)
-                    for role in self.patterns:
-                        self.patterns[role].append(perm.regex)
 
     def _authorized(self, request: Request, role: str) -> bool:
         request_line = f'{request.method} {request.path}'
