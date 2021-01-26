@@ -3,8 +3,9 @@ import re
 from typing import Any, Callable
 
 from django.conf import settings
+from django.http import JsonResponse
 from redisary import Redisary
-from rest_framework.exceptions import PermissionDenied, NotAuthenticated
+from rest_framework.exceptions import PermissionDenied, NotAuthenticated, APIException
 from rest_framework.request import Request
 
 from auther.models import Perm, Role, Domain, User
@@ -91,8 +92,15 @@ class AuthMiddleware:
             request._body = re.sub(self.password_pattern, password_field, request.body)
 
     def __call__(self, request: Request) -> Any:
-        self._fill_credential(request)
-        self._check_permission(request)
-        self._hash_password(request)
+        try:
+            self._fill_credential(request)
+            self._check_permission(request)
+            self._hash_password(request)
+        except Exception as e:
+            if isinstance(e, APIException):
+                return JsonResponse(
+                    data={'detail': e.detail},
+                    status=e.status_code)
+            return JsonResponse({'detail': 'Authentication error'})
 
         return self.get_response(request)
