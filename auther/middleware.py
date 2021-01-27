@@ -93,6 +93,6 @@ class AuthMiddleware:
                 return JsonResponse(
                     data={'detail': e.detail},
                     status=e.status_code)
-            return JsonResponse({'detail': 'Authentication error'})
+            return JsonResponse({'detail': 'Authentication error'}, status=500)
 
         return self.get_response(request)
