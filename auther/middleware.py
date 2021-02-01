@@ -16,7 +16,7 @@ class AuthMiddleware:
     def __init__(self, get_response: Callable) -> None:
         self.get_response = get_response
         self.tokens = Redisary(db=settings.AUTHER['REDIS_DB'])
-        self.password_pattern = b'"password"\\s*:\\s*".*"'
+        self.password_pattern = b'"password"\\s*:\\s*".*?"'
 
         self.patterns = dict()
         for role in Role.objects.all():
