@@ -40,3 +40,11 @@ def login(user: User) -> str:
     tokens[token] = json.dumps(payload)
 
     return token
+
+
+# noinspection PyProtectedMember
+def logout(request: Request) -> None:
+    token_name = settings.AUTHER['TOKEN_NAME']
+
+    if token_name in request._request.COOKIES:
+        del tokens[request._request.COOKIES[token_name]]

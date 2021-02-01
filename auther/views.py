@@ -1,9 +1,11 @@
 from django.conf import settings
+from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from auther.auth import authenticate, login
+from auther.auth import authenticate, login, logout
 from auther.models import Domain, Role, Perm, User
 from auther.serializers import DomainSerializer, PermSerializer, RoleSerializer, UserSerializer, LoginSerializer
 from fancy.viewsets import FancyViewSet
@@ -55,3 +57,11 @@ class LoginView(GenericAPIView):
             secure=settings.AUTHER['TOKEN_SECURE'])
 
         return response
+
+
+class LogoutView(APIView):
+    # noinspection PyMethodMayBeStatic
+    def post(self, request: Request) -> Response:
+        logout(request)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
