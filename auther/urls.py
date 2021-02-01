@@ -1,16 +1,16 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from auther.views import DomainViewSet, PermViewSet, RoleViewSet, UserViewSet, LoginView, LogoutView
+from auther import views
 
 router = routers.DefaultRouter()
-router.register(r'domains', DomainViewSet)
-router.register(r'perms', PermViewSet)
-router.register(r'roles', RoleViewSet)
-router.register(r'users', UserViewSet)
+router.register(r'domains', views.DomainViewSet)
+router.register(r'perms', views.PermViewSet)
+router.register(r'roles', views.RoleViewSet)
+router.register(r'users', views.UserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('login/', LoginView.as_view()),
-    path('logout/', LogoutView.as_view())
+    path('login/', views.LoginView.as_view()),
+    path('logout/', views.LogoutView.as_view())
 ]
