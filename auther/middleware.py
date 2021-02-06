@@ -72,7 +72,8 @@ class AuthMiddleware:
         password = re.search(self.password_pattern, request.body)
         if password:
             password = password.group(0)
-            password = password[13:-1]
+            password = password[:password.rfind(b'"')]
+            password = password[password.rfind(b'"') + 1:]
             return password
         return b''
 
