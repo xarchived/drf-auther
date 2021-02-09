@@ -6,7 +6,7 @@ from redisary import Redisary
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
 
-from auther.models import User
+from auther.models import User, Session
 from auther.utils import generate_token, check_password
 
 tokens = Redisary(db=settings.AUTHER['REDIS_DB'])
@@ -33,8 +33,11 @@ def authenticate(request: Request) -> User:
     raise AuthenticationFailed('Username and/or password is wrong')
 
 
-def login(user: User) -> str:
+def login(request: Request, user: User) -> str:
     token = generate_token()
+
+    session = Session(token=token, user=user, user_agent=request.headers['User-Agent'])
+    session.save()
 
     payload = {
         'id': user.id,

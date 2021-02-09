@@ -113,3 +113,10 @@ class UserSerializer(FancySerializer):
 class LoginSerializer(serializers.Serializer):
     username = fields.CharField(min_length=4, max_length=64)
     password = fields.CharField(min_length=6, max_length=64, write_only=True)
+
+
+class SessionSerializer(FancySerializer):
+    token = fields.CharField(required=True, min_length=64, max_length=64)
+    user = UserSerializer(required=True)
+    user_agent = fields.CharField(required=True, min_length=200)
+    inserted_at = fields.DateTimeField(read_only=True)

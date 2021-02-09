@@ -39,7 +39,7 @@ class LoginView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         user = authenticate(request)
-        token = login(user)
+        token = login(request, user)
 
         response = Response({
             'id': user.id,

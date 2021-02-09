@@ -27,3 +27,10 @@ class User(FancyModel):
     expire = models.DateTimeField(null=True)
     domain = models.ForeignKey(Domain, on_delete=models.RESTRICT, related_name='users', null=True)
     role = models.ForeignKey(Role, on_delete=models.RESTRICT, related_name='users', null=True)
+
+
+class Session(models.Model):
+    token = models.TextField(unique=True, max_length=64)
+    user = models.ForeignKey(User, on_delete=models.RESTRICT, related_name='sessions')
+    user_agent = models.TextField(max_length=200)
+    inserted_at = models.DateTimeField(auto_now_add=True)
