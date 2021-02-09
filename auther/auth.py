@@ -18,12 +18,12 @@ def authenticate(request: Request) -> User:
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        raise AuthenticationFailed()
+        raise AuthenticationFailed('Username and/or password is wrong')
 
     if check_password(password, user.password):
         return user
 
-    raise AuthenticationFailed()
+    raise AuthenticationFailed('Username and/or password is wrong')
 
 
 def login(user: User) -> str:
