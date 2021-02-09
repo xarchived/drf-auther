@@ -1,11 +1,11 @@
 from typing import Any
 
 from django.conf import settings
-from fancy.serializers import FancySerializer
 from rest_framework import serializers, fields, relations
 
 from auther.models import Domain, Role, User, Perm
 from auther.utils import generate_password, hash_password
+from fancy.serializers import FancySerializer
 
 
 class BasicDomainSerializer(FancySerializer):
@@ -71,6 +71,8 @@ class UserSerializer(FancySerializer):
     username = fields.CharField(min_length=6, max_length=64)
     password = fields.CharField(min_length=8, max_length=64, write_only=True, required=False)
     avatar_token = fields.CharField(min_length=64, max_length=128, required=False)
+    active = fields.BooleanField(allow_null=True, default=True, required=False)
+    expire = fields.DateTimeField(allow_null=True, required=False)
     domain_id = relations.PrimaryKeyRelatedField(source='domain', queryset=Domain.objects.all(), required=False)
     domain = BasicDomainSerializer(required=False)
     role_id = relations.PrimaryKeyRelatedField(source='role', queryset=Role.objects.all(), required=False)
