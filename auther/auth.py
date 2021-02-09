@@ -1,6 +1,7 @@
 import json
 
 from django.conf import settings
+from django.utils import timezone
 from redisary import Redisary
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
@@ -19,6 +20,12 @@ def authenticate(request: Request) -> User:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         raise AuthenticationFailed('Username and/or password is wrong')
+
+    if not user.active:
+        raise AuthenticationFailed('Account is not active')
+
+    if user.expire and user.expire < timezone.now():
+        raise AuthenticationFailed('Account has expire')
 
     if check_password(password, user.password):
         return user
