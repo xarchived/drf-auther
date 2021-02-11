@@ -22,7 +22,7 @@ def authenticate(request: Request) -> User:
         raise AuthenticationFailed('Username and/or password is wrong')
 
     session = Session.objects.filter(user_id=user.id)
-    if len(session) > settings.AUTHER['MAX_SESSION']:
+    if len(session) > settings.AUTHER['MAX_SESSIONS']:
         raise AuthenticationFailed('Maximum number of sessions exceeded')
 
     if not user.active:
