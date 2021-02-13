@@ -21,15 +21,18 @@ def authenticate(request: Request) -> User:
     except User.DoesNotExist:
         raise AuthenticationFailed('Username and/or password is wrong')
 
-    session = Session.objects.filter(user_id=user.id)
-    if len(session) > settings.AUTHER['MAX_SESSIONS']:
-        raise AuthenticationFailed('Maximum number of sessions exceeded')
+    if user.deleted_at:
+        raise AuthenticationFailed('User has been removed')
 
     if not user.active:
         raise AuthenticationFailed('Account is not active')
 
     if user.expire and user.expire < timezone.now():
         raise AuthenticationFailed('Account has expire')
+
+    session = Session.objects.filter(user_id=user.id)
+    if len(session) > settings.AUTHER['MAX_SESSIONS']:
+        raise AuthenticationFailed('Maximum number of sessions exceeded')
 
     if check_password(password, user.password):
         return user
