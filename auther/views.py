@@ -51,6 +51,8 @@ class LoginView(GenericAPIView):
         response.set_cookie(
             settings.AUTHER['TOKEN_NAME'],
             token,
+            domain=settings.AUTHER['TOKEN_DOMAIN'],
+            path=settings.AUTHER['TOKEN_PATH'],
             httponly=settings.AUTHER['TOKEN_HTTPONLY'],
             max_age=settings.AUTHER['TOKEN_EXPIRE'],
             samesite=settings.AUTHER['TOKEN_SAMESITE'],
