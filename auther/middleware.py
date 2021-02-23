@@ -42,16 +42,22 @@ class AuthMiddleware:
     def _fill_credential(self, request: Request) -> None:
         request.credential = None
         token = request.COOKIES.get(settings.AUTHER['TOKEN_NAME'])
-        if token and token in self.tokens:
-            raw = json.loads(self.tokens[token])
-            user = User(
-                id=raw['id'],
-                name=raw['name'],
-                username=raw['username'],
-                avatar_token=raw['avatar_token'],
-                role=Role(name=raw['role']),
-                domain=Domain(address=raw['domain']))
-            request.credential = user
+
+        if not token:
+            return
+
+        if token not in self.tokens:
+            raise NotAuthenticated('Token not found')
+
+        raw = json.loads(self.tokens[token])
+        user = User(
+            id=raw['id'],
+            name=raw['name'],
+            username=raw['username'],
+            avatar_token=raw['avatar_token'],
+            role=Role(name=raw['role']),
+            domain=Domain(address=raw['domain']))
+        request.credential = user
 
     def _check_permission(self, request: Request) -> None:
         if not self.patterns:
