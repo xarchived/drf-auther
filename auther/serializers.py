@@ -87,6 +87,7 @@ class UserSerializer(FancySerializer):
     def _hash_password_field(validated_data: dict):
         if 'password' in validated_data:
             validated_data['password'] = hash_password(password=validated_data['password'].encode('utf-8'))
+            validated_data['password'] = str(validated_data['password'], 'utf-8')
 
     def create(self, validated_data: dict) -> Any:
         random_password = None
