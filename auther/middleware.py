@@ -9,7 +9,6 @@ from rest_framework.exceptions import PermissionDenied, NotAuthenticated, APIExc
 from rest_framework.request import Request
 
 from auther.models import Role, Domain, User
-from auther.utils import hash_password
 
 
 class AuthMiddleware:
@@ -74,27 +73,10 @@ class AuthMiddleware:
 
         raise PermissionDenied('Access Denied')
 
-    def _extract_password(self, request: Request) -> bytes:
-        password = re.search(self.password_pattern, request.body)
-        if password:
-            password = password.group(0)
-            password = password[:password.rfind(b'"')]
-            password = password[password.rfind(b'"') + 1:]
-            return password
-        return b''
-
-    def _hash_password(self, request: Request) -> None:
-        password = self._extract_password(request)
-        if request.path != settings.AUTHER['LOGIN_PAGE'] and password:
-            hashed = hash_password(password)
-            password_field = b'"password": "' + hashed + b'"'
-            request._body = re.sub(self.password_pattern, password_field, request.body)
-
     def __call__(self, request: Request) -> Any:
         try:
             self._fill_credential(request)
             self._check_permission(request)
-            self._hash_password(request)
         except Exception as e:
             if isinstance(e, APIException):
                 return JsonResponse(

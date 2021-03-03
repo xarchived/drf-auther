@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.conf import settings
+from django.db.models import Model
 from rest_framework import serializers, fields, relations
 
 from auther.models import Domain, Role, User, Perm
@@ -82,8 +83,16 @@ class UserSerializer(FancySerializer):
         model = User
         exclude = []
 
+    @staticmethod
+    def _hash_password_field(validated_data: dict):
+        if 'password' in validated_data:
+            validated_data['password'] = hash_password(password=validated_data['password'].encode('utf-8'))
+
     def create(self, validated_data: dict) -> Any:
         random_password = None
+
+        # If there is a password field we will hash it
+        self._hash_password_field(validated_data)
 
         # Create a role with same name as model and add it to user
         default_role = settings.AUTHER.get('DEFAULT_ROLE')
@@ -107,6 +116,12 @@ class UserSerializer(FancySerializer):
             user.password = str(random_password, encoding='ascii')
 
         return user
+
+    def update(self, instance: Model, validated_data: dict) -> Any:
+        # If there is a password field we will hash it
+        self._hash_password_field(validated_data)
+
+        return super(UserSerializer, self).update(instance=instance, validated_data=validated_data)
 
 
 # noinspection PyAbstractClass
