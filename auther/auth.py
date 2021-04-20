@@ -52,7 +52,7 @@ def login(request: Request, user: User) -> str:
         'username': user.username,
         'avatar_token': user.avatar_token,
         'domain': user.domain.address if user.domain else None,
-        'role': user.role.name if user.role else None
+        'role': user.role.name if user.role else None,
     }
     tokens[token] = json.dumps(payload)
 

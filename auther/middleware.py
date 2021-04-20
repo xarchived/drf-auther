@@ -55,7 +55,8 @@ class AuthMiddleware:
             username=raw['username'],
             avatar_token=raw['avatar_token'],
             role=Role(name=raw['role']),
-            domain=Domain(address=raw['domain']))
+            domain=Domain(address=raw['domain']),
+        )
         request.credential = user
 
     def _check_permission(self, request: Request) -> None:

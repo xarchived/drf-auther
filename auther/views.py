@@ -45,7 +45,7 @@ class LoginView(GenericAPIView):
             'id': user.id,
             'name': user.name,
             'avatar_token': user.avatar_token,
-            'role': user.role.name if user.role else None
+            'role': user.role.name if user.role else None,
         })
 
         response.set_cookie(
@@ -56,7 +56,8 @@ class LoginView(GenericAPIView):
             httponly=settings.AUTHER['TOKEN_HTTPONLY'],
             max_age=settings.AUTHER['TOKEN_EXPIRE'],
             samesite=settings.AUTHER['TOKEN_SAMESITE'],
-            secure=settings.AUTHER['TOKEN_SECURE'])
+            secure=settings.AUTHER['TOKEN_SECURE'],
+        )
 
         return response
 
