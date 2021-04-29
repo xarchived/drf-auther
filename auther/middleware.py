@@ -46,6 +46,9 @@ class AuthMiddleware:
             return
 
         if token not in self.tokens:
+            if request.path == settings.AUTHER['LOGIN_PAGE']:
+                return
+
             raise NotAuthenticated('Token not found')
 
         raw = json.loads(self.tokens[token])
