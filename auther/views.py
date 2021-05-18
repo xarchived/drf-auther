@@ -38,8 +38,8 @@ class LoginView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = authenticate(request)
-        token = login(request, user)
+        user = authenticate(request.data['username'], request.data['password'])
+        token = login(user, request.headers['User-Agent'])
 
         response = Response({
             'id': user.id,

@@ -12,10 +12,7 @@ from auther.utils import generate_token, check_password
 tokens = Redisary(db=settings.AUTHER['REDIS_DB'])
 
 
-def authenticate(request: Request) -> User:
-    username = request.data['username']
-    password = request.data['password']
-
+def authenticate(username: str, password: str) -> User:
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
@@ -40,10 +37,10 @@ def authenticate(request: Request) -> User:
     raise AuthenticationFailed('Username and/or password is wrong')
 
 
-def login(request: Request, user: User) -> str:
+def login(user: User, user_agent: str) -> str:
     token = generate_token()
 
-    session = Session(token=token, user=user, user_agent=request.headers['User-Agent'])
+    session = Session(token=token, user=user, user_agent=user_agent)
     session.save()
 
     payload = {
