@@ -67,4 +67,10 @@ class LogoutView(APIView):
     def post(self, request: Request) -> Response:
         logout(request)
 
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        response = Response(status=status.HTTP_204_NO_CONTENT)
+        response.delete_cookie(
+            settings.AUTHER['TOKEN_NAME'],
+            domain=settings.AUTHER['TOKEN_DOMAIN'],
+            path=settings.AUTHER['TOKEN_PATH'],
+        )
+        return response
