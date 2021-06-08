@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db.models import Model
 from rest_framework import serializers, fields, relations
 
-from auther.models import Domain, Role, User, Perm
+from auther.models import Domain, Role, User, Perm, Session
 from auther.utils import generate_password, hash_password
 
 
@@ -32,17 +32,6 @@ class BasicUserSerializer(serializers.ModelSerializer):
         exclude = ['password']
 
 
-class DomainSerializer(serializers.ModelSerializer):
-    name = fields.CharField(min_length=1, max_length=99)
-    address = fields.CharField(min_length=4, max_length=99)
-    users_ids = relations.PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
-    users = BasicUserSerializer(many=True, required=False)
-
-    class Meta:
-        model = Domain
-        exclude = []
-
-
 class PermSerializer(serializers.ModelSerializer):
     name = fields.CharField(min_length=3, max_length=9, allow_blank=True)
     regex = fields.CharField(min_length=1, max_length=64)
@@ -63,6 +52,17 @@ class RoleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Role
+        exclude = []
+
+
+class DomainSerializer(serializers.ModelSerializer):
+    name = fields.CharField(min_length=1, max_length=99)
+    address = fields.CharField(min_length=4, max_length=99)
+    users_ids = relations.PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
+    users = BasicUserSerializer(many=True, required=False)
+
+    class Meta:
+        model = Domain
         exclude = []
 
 
@@ -126,9 +126,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 class SessionSerializer(serializers.ModelSerializer):
     token = fields.CharField(required=True, min_length=64, max_length=64)
+    user_id = relations.PrimaryKeyRelatedField(source='user', queryset=User.objects.all(), required=False)
     user = BasicUserSerializer(required=True)
     user_agent = fields.CharField(required=True, min_length=200)
     inserted_at = fields.DateTimeField(read_only=True)
+
+    class Meta:
+        model = Session
+        exclude = []
 
 
 # noinspection PyAbstractClass
