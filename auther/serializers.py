@@ -3,31 +3,32 @@ from typing import Any
 from django.conf import settings
 from django.db.models import Model
 from rest_framework import serializers, fields, relations
+from rest_framework.serializers import ModelSerializer
 
 from auther.models import Domain, Role, User, Perm
 from auther.utils import generate_password, hash_password
 from fancy.serializers import FancySerializer
 
 
-class BasicDomainSerializer(FancySerializer):
+class BasicDomainSerializer(ModelSerializer):
     class Meta:
         model = Domain
         exclude = []
 
 
-class BasicPermSerializer(FancySerializer):
+class BasicPermSerializer(ModelSerializer):
     class Meta:
         model = Perm
         exclude = []
 
 
-class BasicRoleSerializer(FancySerializer):
+class BasicRoleSerializer(ModelSerializer):
     class Meta:
         model = Role
         exclude = ['perms']
 
 
-class BasicUserSerializer(FancySerializer):
+class BasicUserSerializer(ModelSerializer):
     class Meta:
         model = User
         exclude = ['password']
