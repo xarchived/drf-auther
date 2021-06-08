@@ -7,7 +7,6 @@ from rest_framework.serializers import ModelSerializer
 
 from auther.models import Domain, Role, User, Perm
 from auther.utils import generate_password, hash_password
-from fancy.serializers import FancySerializer
 
 
 class BasicDomainSerializer(ModelSerializer):
@@ -34,7 +33,7 @@ class BasicUserSerializer(ModelSerializer):
         exclude = ['password']
 
 
-class DomainSerializer(FancySerializer):
+class DomainSerializer(ModelSerializer):
     name = fields.CharField(min_length=1, max_length=99)
     address = fields.CharField(min_length=4, max_length=99)
     users_ids = relations.PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
@@ -45,7 +44,7 @@ class DomainSerializer(FancySerializer):
         exclude = []
 
 
-class PermSerializer(FancySerializer):
+class PermSerializer(ModelSerializer):
     name = fields.CharField(min_length=3, max_length=9, allow_blank=True)
     regex = fields.CharField(min_length=1, max_length=64)
     roles_ids = relations.PrimaryKeyRelatedField(source='roles', many=True, queryset=Role.objects.all(), required=False)
@@ -56,7 +55,7 @@ class PermSerializer(FancySerializer):
         exclude = []
 
 
-class RoleSerializer(FancySerializer):
+class RoleSerializer(ModelSerializer):
     name = fields.CharField(min_length=3, max_length=64)
     users_ids = relations.PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
     users = BasicUserSerializer(many=True, required=False)
@@ -68,7 +67,7 @@ class RoleSerializer(FancySerializer):
         exclude = []
 
 
-class UserSerializer(FancySerializer):
+class UserSerializer(ModelSerializer):
     name = fields.CharField(min_length=3, max_length=64, required=False, allow_blank=True)
     username = fields.CharField(min_length=6, max_length=64)
     password = fields.CharField(min_length=8, max_length=64, write_only=True, required=False)
@@ -126,14 +125,14 @@ class UserSerializer(FancySerializer):
         return super(UserSerializer, self).update(instance=instance, validated_data=validated_data)
 
 
+class SessionSerializer(ModelSerializer):
+    token = fields.CharField(required=True, min_length=64, max_length=64)
+    user = BasicUserSerializer(required=True)
+    user_agent = fields.CharField(required=True, min_length=200)
+    inserted_at = fields.DateTimeField(read_only=True)
+
+
 # noinspection PyAbstractClass
 class LoginSerializer(serializers.Serializer):
     username = fields.CharField(min_length=4, max_length=64)
     password = fields.CharField(min_length=6, max_length=64, write_only=True)
-
-
-class SessionSerializer(FancySerializer):
-    token = fields.CharField(required=True, min_length=64, max_length=64)
-    user = UserSerializer(required=True)
-    user_agent = fields.CharField(required=True, min_length=200)
-    inserted_at = fields.DateTimeField(read_only=True)
