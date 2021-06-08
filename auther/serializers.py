@@ -8,25 +8,25 @@ from auther import models
 from auther.utils import generate_password, hash_password
 
 
-class BasicDomainSerializer(serializers.ModelSerializer):
+class SimpleDomainSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Domain
         exclude = []
 
 
-class BasicPermSerializer(serializers.ModelSerializer):
+class SimplePermSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Perm
         exclude = []
 
 
-class BasicRoleSerializer(serializers.ModelSerializer):
+class SimpleRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Role
         exclude = ['perms']
 
 
-class BasicUserSerializer(serializers.ModelSerializer):
+class SimpleUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
         exclude = ['password']
@@ -42,7 +42,7 @@ class PermSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
-    roles = BasicRoleSerializer(many=True, read_only=True)
+    roles = SimpleRoleSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Perm
@@ -58,7 +58,7 @@ class RoleSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
-    users = BasicUserSerializer(many=True, read_only=True)
+    users = SimpleUserSerializer(many=True, read_only=True)
     perms_ids = relations.PrimaryKeyRelatedField(
         source='perms',
         many=True,
@@ -66,7 +66,7 @@ class RoleSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
-    perms = BasicPermSerializer(many=True, read_only=True)
+    perms = SimplePermSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Role
@@ -83,7 +83,7 @@ class DomainSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
-    users = BasicUserSerializer(many=True, read_only=True)
+    users = SimpleUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Domain
@@ -103,14 +103,14 @@ class UserSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
-    domain = BasicDomainSerializer(read_only=True)
+    domain = SimpleDomainSerializer(read_only=True)
     role_id = relations.PrimaryKeyRelatedField(
         source='role',
         queryset=models.Role.objects.all(),
         required=False,
         allow_null=True,
     )
-    role = BasicRoleSerializer(read_only=True)
+    role = SimpleRoleSerializer(read_only=True)
 
     class Meta:
         model = models.User
@@ -166,7 +166,7 @@ class SessionSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
-    user = BasicUserSerializer(read_only=True)
+    user = SimpleUserSerializer(read_only=True)
     user_agent = fields.CharField(required=True, min_length=200)
     inserted_at = fields.DateTimeField(read_only=True)
 
