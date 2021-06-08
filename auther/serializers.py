@@ -3,37 +3,36 @@ from typing import Any
 from django.conf import settings
 from django.db.models import Model
 from rest_framework import serializers, fields, relations
-from rest_framework.serializers import ModelSerializer
 
 from auther.models import Domain, Role, User, Perm
 from auther.utils import generate_password, hash_password
 
 
-class BasicDomainSerializer(ModelSerializer):
+class BasicDomainSerializer(serializers.ModelSerializer):
     class Meta:
         model = Domain
         exclude = []
 
 
-class BasicPermSerializer(ModelSerializer):
+class BasicPermSerializer(serializers.ModelSerializer):
     class Meta:
         model = Perm
         exclude = []
 
 
-class BasicRoleSerializer(ModelSerializer):
+class BasicRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
         exclude = ['perms']
 
 
-class BasicUserSerializer(ModelSerializer):
+class BasicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ['password']
 
 
-class DomainSerializer(ModelSerializer):
+class DomainSerializer(serializers.ModelSerializer):
     name = fields.CharField(min_length=1, max_length=99)
     address = fields.CharField(min_length=4, max_length=99)
     users_ids = relations.PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
@@ -44,7 +43,7 @@ class DomainSerializer(ModelSerializer):
         exclude = []
 
 
-class PermSerializer(ModelSerializer):
+class PermSerializer(serializers.ModelSerializer):
     name = fields.CharField(min_length=3, max_length=9, allow_blank=True)
     regex = fields.CharField(min_length=1, max_length=64)
     roles_ids = relations.PrimaryKeyRelatedField(source='roles', many=True, queryset=Role.objects.all(), required=False)
@@ -55,7 +54,7 @@ class PermSerializer(ModelSerializer):
         exclude = []
 
 
-class RoleSerializer(ModelSerializer):
+class RoleSerializer(serializers.ModelSerializer):
     name = fields.CharField(min_length=3, max_length=64)
     users_ids = relations.PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
     users = BasicUserSerializer(many=True, required=False)
@@ -67,7 +66,7 @@ class RoleSerializer(ModelSerializer):
         exclude = []
 
 
-class UserSerializer(ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     name = fields.CharField(min_length=3, max_length=64, required=False, allow_blank=True)
     username = fields.CharField(min_length=6, max_length=64)
     password = fields.CharField(min_length=8, max_length=64, write_only=True, required=False)
@@ -125,7 +124,7 @@ class UserSerializer(ModelSerializer):
         return super(UserSerializer, self).update(instance=instance, validated_data=validated_data)
 
 
-class SessionSerializer(ModelSerializer):
+class SessionSerializer(serializers.ModelSerializer):
     token = fields.CharField(required=True, min_length=64, max_length=64)
     user = BasicUserSerializer(required=True)
     user_agent = fields.CharField(required=True, min_length=200)
