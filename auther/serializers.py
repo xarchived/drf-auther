@@ -4,65 +4,85 @@ from django.conf import settings
 from django.db.models import Model
 from rest_framework import serializers, fields, relations
 
-from auther.models import Domain, Role, User, Perm, Session
+from auther import models
 from auther.utils import generate_password, hash_password
 
 
 class BasicDomainSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Domain
+        model = models.Domain
         exclude = []
 
 
 class BasicPermSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Perm
+        model = models.Perm
         exclude = []
 
 
 class BasicRoleSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Role
+        model = models.Role
         exclude = ['perms']
 
 
 class BasicUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = models.User
         exclude = ['password']
 
 
 class PermSerializer(serializers.ModelSerializer):
     name = fields.CharField(min_length=3, max_length=9, allow_blank=True)
     regex = fields.CharField(min_length=1, max_length=64)
-    roles_ids = relations.PrimaryKeyRelatedField(source='roles', many=True, queryset=Role.objects.all(), required=False)
+    roles_ids = relations.PrimaryKeyRelatedField(
+        source='roles',
+        many=True,
+        queryset=models.Role.objects.all(),
+        required=False,
+    )
     roles = BasicRoleSerializer(many=True, required=False)
 
     class Meta:
-        model = Perm
+        model = models.Perm
         exclude = []
 
 
 class RoleSerializer(serializers.ModelSerializer):
     name = fields.CharField(min_length=3, max_length=64)
-    users_ids = relations.PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
+    users_ids = relations.PrimaryKeyRelatedField(
+        source='users',
+        many=True,
+        queryset=models.User.objects.all(),
+        required=False,
+    )
     users = BasicUserSerializer(many=True, required=False)
-    perms_ids = relations.PrimaryKeyRelatedField(source='perms', many=True, queryset=Perm.objects.all(), required=False)
+    perms_ids = relations.PrimaryKeyRelatedField(
+        source='perms',
+        many=True,
+        queryset=models.Perm.objects.all(),
+        required=False,
+    )
     perms = BasicPermSerializer(many=True, required=False)
 
     class Meta:
-        model = Role
+        model = models.Role
         exclude = []
 
 
 class DomainSerializer(serializers.ModelSerializer):
     name = fields.CharField(min_length=1, max_length=99)
     address = fields.CharField(min_length=4, max_length=99)
-    users_ids = relations.PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
+    users_ids = relations.PrimaryKeyRelatedField(
+        source='users',
+        many=True,
+        queryset=models.User.objects.all(),
+        required=False,
+    )
     users = BasicUserSerializer(many=True, required=False)
 
     class Meta:
-        model = Domain
+        model = models.Domain
         exclude = []
 
 
@@ -73,13 +93,13 @@ class UserSerializer(serializers.ModelSerializer):
     avatar_token = fields.CharField(min_length=64, max_length=128, required=False)
     active = fields.BooleanField(allow_null=True, default=True, required=False)
     expire = fields.DateTimeField(allow_null=True, required=False)
-    domain_id = relations.PrimaryKeyRelatedField(source='domain', queryset=Domain.objects.all(), required=False)
+    domain_id = relations.PrimaryKeyRelatedField(source='domain', queryset=models.Domain.objects.all(), required=False)
     domain = BasicDomainSerializer(required=False)
-    role_id = relations.PrimaryKeyRelatedField(source='role', queryset=Role.objects.all(), required=False)
+    role_id = relations.PrimaryKeyRelatedField(source='role', queryset=models.Role.objects.all(), required=False)
     role = BasicRoleSerializer(required=False)
 
     class Meta:
-        model = User
+        model = models.User
         exclude = []
 
     @staticmethod
@@ -98,7 +118,7 @@ class UserSerializer(serializers.ModelSerializer):
         default_role = settings.AUTHER.get('DEFAULT_ROLE')
         if default_role and 'role_id' not in self.initial_data and 'role' not in self.initial_data:
             role_name = self.Meta.model.__name__.lower()
-            role, _ = Role.objects.get_or_create(name=role_name)
+            role, _ = models.Role.objects.get_or_create(name=role_name)
             self.validated_data['role_id'] = role.id
 
         # If password is not provided we generate a random one
@@ -126,13 +146,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 class SessionSerializer(serializers.ModelSerializer):
     token = fields.CharField(required=True, min_length=64, max_length=64)
-    user_id = relations.PrimaryKeyRelatedField(source='user', queryset=User.objects.all(), required=False)
+    user_id = relations.PrimaryKeyRelatedField(source='user', queryset=models.User.objects.all(), required=False)
     user = BasicUserSerializer(required=True)
     user_agent = fields.CharField(required=True, min_length=200)
     inserted_at = fields.DateTimeField(read_only=True)
 
     class Meta:
-        model = Session
+        model = models.Session
         exclude = []
 
 
