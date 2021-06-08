@@ -40,6 +40,7 @@ class PermSerializer(serializers.ModelSerializer):
         many=True,
         queryset=models.Role.objects.all(),
         required=False,
+        allow_null=True,
     )
     roles = BasicRoleSerializer(many=True, read_only=True)
 
@@ -55,6 +56,7 @@ class RoleSerializer(serializers.ModelSerializer):
         many=True,
         queryset=models.User.objects.all(),
         required=False,
+        allow_null=True,
     )
     users = BasicUserSerializer(many=True, read_only=True)
     perms_ids = relations.PrimaryKeyRelatedField(
@@ -62,6 +64,7 @@ class RoleSerializer(serializers.ModelSerializer):
         many=True,
         queryset=models.Perm.objects.all(),
         required=False,
+        allow_null=True,
     )
     perms = BasicPermSerializer(many=True, read_only=True)
 
@@ -78,6 +81,7 @@ class DomainSerializer(serializers.ModelSerializer):
         many=True,
         queryset=models.User.objects.all(),
         required=False,
+        allow_null=True,
     )
     users = BasicUserSerializer(many=True, read_only=True)
 
@@ -87,15 +91,25 @@ class DomainSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    name = fields.CharField(min_length=3, max_length=64, required=False, allow_blank=True)
+    name = fields.CharField(min_length=3, max_length=64, required=False, allow_null=True, allow_blank=True)
     username = fields.CharField(min_length=6, max_length=64)
-    password = fields.CharField(min_length=8, max_length=64, write_only=True, required=False)
-    avatar_token = fields.CharField(min_length=64, max_length=128, required=False)
+    password = fields.CharField(min_length=8, max_length=64, write_only=True, required=False, allow_null=True)
+    avatar_token = fields.CharField(min_length=64, max_length=128, required=False, allow_null=True)
     active = fields.BooleanField(allow_null=True, default=True, required=False)
     expire = fields.DateTimeField(allow_null=True, required=False)
-    domain_id = relations.PrimaryKeyRelatedField(source='domain', queryset=models.Domain.objects.all(), required=False)
+    domain_id = relations.PrimaryKeyRelatedField(
+        source='domain',
+        queryset=models.Domain.objects.all(),
+        required=False,
+        allow_null=True,
+    )
     domain = BasicDomainSerializer(read_only=True)
-    role_id = relations.PrimaryKeyRelatedField(source='role', queryset=models.Role.objects.all(), required=False)
+    role_id = relations.PrimaryKeyRelatedField(
+        source='role',
+        queryset=models.Role.objects.all(),
+        required=False,
+        allow_null=True,
+    )
     role = BasicRoleSerializer(read_only=True)
 
     class Meta:
@@ -146,7 +160,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 class SessionSerializer(serializers.ModelSerializer):
     token = fields.CharField(required=True, min_length=64, max_length=64)
-    user_id = relations.PrimaryKeyRelatedField(source='user', queryset=models.User.objects.all(), required=False)
+    user_id = relations.PrimaryKeyRelatedField(
+        source='user',
+        queryset=models.User.objects.all(),
+        required=False,
+        allow_null=True,
+    )
     user = BasicUserSerializer(read_only=True)
     user_agent = fields.CharField(required=True, min_length=200)
     inserted_at = fields.DateTimeField(read_only=True)
