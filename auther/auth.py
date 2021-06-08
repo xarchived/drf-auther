@@ -1,15 +1,14 @@
 import json
 
-from django.conf import settings
 from django.utils import timezone
 from redisary import Redisary
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
 
-from auther import models
+from auther import models, settings
 from auther.utils import generate_token, check_password
 
-tokens = Redisary(db=settings.AUTHER['REDIS_DB'])
+tokens = Redisary(db=settings.REDIS_DB)
 
 
 def authenticate(username: str, password: str) -> models.User:
@@ -28,7 +27,7 @@ def authenticate(username: str, password: str) -> models.User:
         raise AuthenticationFailed('Account has expire')
 
     session = models.Session.objects.filter(user_id=user.id)
-    if len(session) > settings.AUTHER['MAX_SESSIONS']:
+    if len(session) > settings.MAX_SESSIONS:
         raise AuthenticationFailed('Maximum number of sessions exceeded')
 
     if check_password(password, user.password):
@@ -58,7 +57,7 @@ def login(user: models.User, user_agent: str) -> str:
 
 # noinspection PyProtectedMember
 def logout(request: Request) -> None:
-    token_name = settings.AUTHER['TOKEN_NAME']
+    token_name = settings.TOKEN_NAME
 
     if token_name in request._request.COOKIES:
         del tokens[request._request.COOKIES[token_name]]

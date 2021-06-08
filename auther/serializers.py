@@ -1,10 +1,9 @@
 from typing import Any
 
-from django.conf import settings
 from django.db.models import Model
 from rest_framework import serializers, fields, relations
 
-from auther import models, simples
+from auther import models, simples, settings
 from auther.utils import generate_password, hash_password
 
 
@@ -105,7 +104,7 @@ class UserSerializer(serializers.ModelSerializer):
         self._hash_password_field(validated_data)
 
         # Create a role with same name as model and add it to user
-        default_role = settings.AUTHER.get('DEFAULT_ROLE')
+        default_role = settings.DEFAULT_ROLE
         if default_role and 'role_id' not in self.initial_data and 'role' not in self.initial_data:
             role_name = self.Meta.model.__name__.lower()
             role, _ = models.Role.objects.get_or_create(name=role_name)

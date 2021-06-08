@@ -1,11 +1,10 @@
-from django.conf import settings
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from auther import serializers, auth, models
+from auther import serializers, auth, models, settings
 from fancy.viewsets import FancyViewSet
 
 
@@ -47,14 +46,14 @@ class LoginView(GenericAPIView):
         })
 
         response.set_cookie(
-            settings.AUTHER['TOKEN_NAME'],
+            settings.TOKEN_NAME,
             token,
-            domain=settings.AUTHER['TOKEN_DOMAIN'],
-            path=settings.AUTHER['TOKEN_PATH'],
-            httponly=settings.AUTHER['TOKEN_HTTPONLY'],
-            max_age=settings.AUTHER['TOKEN_EXPIRE'],
-            samesite=settings.AUTHER['TOKEN_SAMESITE'],
-            secure=settings.AUTHER['TOKEN_SECURE'],
+            domain=settings.TOKEN_DOMAIN,
+            path=settings.TOKEN_PATH,
+            httponly=settings.TOKEN_HTTPONLY,
+            max_age=settings.TOKEN_EXPIRE,
+            samesite=settings.TOKEN_SAMESITE,
+            secure=settings.TOKEN_SECURE,
         )
 
         return response
