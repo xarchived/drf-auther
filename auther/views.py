@@ -5,41 +5,39 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from auther.auth import authenticate, login, logout
-from auther.models import Domain, Role, Perm, User
-from auther.serializers import DomainSerializer, PermSerializer, RoleSerializer, UserSerializer, LoginSerializer
+from auther import serializers, auth, models
 from fancy.viewsets import FancyViewSet
 
 
 class DomainViewSet(FancyViewSet):
-    queryset = Domain.objects.all()
-    serializer_class = DomainSerializer
+    queryset = models.Domain.objects.all()
+    serializer_class = serializers.DomainSerializer
 
 
 class PermViewSet(FancyViewSet):
-    queryset = Perm.objects.all()
-    serializer_class = PermSerializer
+    queryset = models.Perm.objects.all()
+    serializer_class = serializers.PermSerializer
 
 
 class RoleViewSet(FancyViewSet):
-    queryset = Role.objects.all()
-    serializer_class = RoleSerializer
+    queryset = models.Role.objects.all()
+    serializer_class = serializers.RoleSerializer
 
 
 class UserViewSet(FancyViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+    queryset = models.User.objects.all()
+    serializer_class = serializers.UserSerializer
 
 
 class LoginView(GenericAPIView):
-    serializer_class = LoginSerializer
+    serializer_class = serializers.LoginSerializer
 
     def post(self, request: Request) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = authenticate(request.data['username'], request.data['password'])
-        token = login(user, request.headers['User-Agent'])
+        user = auth.authenticate(request.data['username'], request.data['password'])
+        token = auth.login(user, request.headers['User-Agent'])
 
         response = Response({
             'id': user.id,
@@ -65,6 +63,6 @@ class LoginView(GenericAPIView):
 class LogoutView(APIView):
     # noinspection PyMethodMayBeStatic
     def post(self, request: Request) -> Response:
-        logout(request)
+        auth.logout(request)
 
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -6,16 +6,16 @@ from redisary import Redisary
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
 
-from auther.models import User, Session
+from auther import models
 from auther.utils import generate_token, check_password
 
 tokens = Redisary(db=settings.AUTHER['REDIS_DB'])
 
 
-def authenticate(username: str, password: str) -> User:
+def authenticate(username: str, password: str) -> models.User:
     try:
-        user = User.objects.get(username=username)
-    except User.DoesNotExist:
+        user = models.User.objects.get(username=username)
+    except models.User.DoesNotExist:
         raise AuthenticationFailed('Username and/or password is wrong')
 
     if user.deleted_at:
@@ -27,7 +27,7 @@ def authenticate(username: str, password: str) -> User:
     if user.expire and user.expire < timezone.now():
         raise AuthenticationFailed('Account has expire')
 
-    session = Session.objects.filter(user_id=user.id)
+    session = models.Session.objects.filter(user_id=user.id)
     if len(session) > settings.AUTHER['MAX_SESSIONS']:
         raise AuthenticationFailed('Maximum number of sessions exceeded')
 
@@ -37,10 +37,10 @@ def authenticate(username: str, password: str) -> User:
     raise AuthenticationFailed('Username and/or password is wrong')
 
 
-def login(user: User, user_agent: str) -> str:
+def login(user: models.User, user_agent: str) -> str:
     token = generate_token()
 
-    session = Session(token=token, user=user, user_agent=user_agent)
+    session = models.Session(token=token, user=user, user_agent=user_agent)
     session.save()
 
     payload = {

@@ -8,7 +8,7 @@ from redisary import Redisary
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated, APIException
 from rest_framework.request import Request
 
-from auther.models import Role, Domain, User
+from auther import models
 
 
 class AuthMiddleware:
@@ -18,7 +18,7 @@ class AuthMiddleware:
         self.password_pattern = b'"password"\\s*:\\s*".*?"'
 
         self.patterns = dict()
-        for role in Role.objects.all():
+        for role in models.Role.objects.all():
             self.patterns[role.name] = [perm.regex for perm in role.perms.all()]
 
         empty = True
@@ -52,13 +52,13 @@ class AuthMiddleware:
             raise NotAuthenticated('Token not found')
 
         raw = json.loads(self.tokens[token])
-        user = User(
+        user = models.User(
             id=raw['id'],
             name=raw['name'],
             username=raw['username'],
             avatar_token=raw['avatar_token'],
-            role=Role(name=raw['role']),
-            domain=Domain(address=raw['domain']),
+            role=models.Role(name=raw['role']),
+            domain=models.Domain(address=raw['domain']),
         )
         request.credential = user
 
