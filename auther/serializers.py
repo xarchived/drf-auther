@@ -41,7 +41,7 @@ class PermSerializer(serializers.ModelSerializer):
         queryset=models.Role.objects.all(),
         required=False,
     )
-    roles = BasicRoleSerializer(many=True, required=False)
+    roles = BasicRoleSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Perm
@@ -56,14 +56,14 @@ class RoleSerializer(serializers.ModelSerializer):
         queryset=models.User.objects.all(),
         required=False,
     )
-    users = BasicUserSerializer(many=True, required=False)
+    users = BasicUserSerializer(many=True, read_only=True)
     perms_ids = relations.PrimaryKeyRelatedField(
         source='perms',
         many=True,
         queryset=models.Perm.objects.all(),
         required=False,
     )
-    perms = BasicPermSerializer(many=True, required=False)
+    perms = BasicPermSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Role
@@ -79,7 +79,7 @@ class DomainSerializer(serializers.ModelSerializer):
         queryset=models.User.objects.all(),
         required=False,
     )
-    users = BasicUserSerializer(many=True, required=False)
+    users = BasicUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Domain
@@ -94,9 +94,9 @@ class UserSerializer(serializers.ModelSerializer):
     active = fields.BooleanField(allow_null=True, default=True, required=False)
     expire = fields.DateTimeField(allow_null=True, required=False)
     domain_id = relations.PrimaryKeyRelatedField(source='domain', queryset=models.Domain.objects.all(), required=False)
-    domain = BasicDomainSerializer(required=False)
+    domain = BasicDomainSerializer(read_only=True)
     role_id = relations.PrimaryKeyRelatedField(source='role', queryset=models.Role.objects.all(), required=False)
-    role = BasicRoleSerializer(required=False)
+    role = BasicRoleSerializer(read_only=True)
 
     class Meta:
         model = models.User
@@ -147,7 +147,7 @@ class UserSerializer(serializers.ModelSerializer):
 class SessionSerializer(serializers.ModelSerializer):
     token = fields.CharField(required=True, min_length=64, max_length=64)
     user_id = relations.PrimaryKeyRelatedField(source='user', queryset=models.User.objects.all(), required=False)
-    user = BasicUserSerializer(required=True)
+    user = BasicUserSerializer(read_only=True)
     user_agent = fields.CharField(required=True, min_length=200)
     inserted_at = fields.DateTimeField(read_only=True)
 
