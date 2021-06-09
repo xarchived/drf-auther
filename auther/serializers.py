@@ -113,8 +113,8 @@ class UserSerializer(serializers.ModelSerializer):
         # If password is not provided we generate a random one
         if 'password' not in self.initial_data:
             random_password = generate_password(8)
-            hashed_password = str(hash_password(random_password), encoding='ascii')
-            self.validated_data['password'] = hashed_password
+            self.validated_data['password'] = random_password
+            self._hash_password_field(validated_data)
 
         # Store record into database
         user = super(UserSerializer, self).create(validated_data)
