@@ -92,28 +92,30 @@ class UserSerializer(serializers.ModelSerializer):
         exclude = []
 
     @staticmethod
-    def _hash_password_field(validated_data: dict) -> None:
+    def _hash_password_field(validated_data: dict) -> dict:
         if 'password' in validated_data:
             validated_data['password'] = hash_password(password=validated_data['password'])
+
+        return validated_data
 
     def create(self, validated_data: dict) -> Any:
         random_password = None
 
         # If there is a password field we will hash it
-        self._hash_password_field(validated_data)
+        validated_data = self._hash_password_field(validated_data)
 
         # Create a role with same name as model and add it to user
         default_role = settings.DEFAULT_ROLE
         if default_role and 'role_id' not in self.initial_data and 'role' not in self.initial_data:
             role_name = self.Meta.model.__name__.lower()
             role, _ = models.Role.objects.get_or_create(name=role_name)
-            self.validated_data['role_id'] = role.id
+            validated_data['role_id'] = role.id
 
         # If password is not provided we generate a random one
         if 'password' not in self.initial_data:
             random_password = generate_password(8)
-            self.validated_data['password'] = random_password
-            self._hash_password_field(validated_data)
+            validated_data['password'] = random_password
+            validated_data = self._hash_password_field(validated_data)
 
         # Store record into database
         user = super(UserSerializer, self).create(validated_data)
@@ -127,7 +129,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance: Model, validated_data: dict) -> Any:
         # If there is a password field we will hash it
-        self._hash_password_field(validated_data)
+        validated_data = self._hash_password_field(validated_data)
 
         return super(UserSerializer, self).update(instance=instance, validated_data=validated_data)
 
