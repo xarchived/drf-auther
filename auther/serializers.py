@@ -92,10 +92,9 @@ class UserSerializer(serializers.ModelSerializer):
         exclude = []
 
     @staticmethod
-    def _hash_password_field(validated_data: dict):
+    def _hash_password_field(validated_data: dict) -> None:
         if 'password' in validated_data:
-            validated_data['password'] = hash_password(password=validated_data['password'].encode('utf-8'))
-            validated_data['password'] = str(validated_data['password'], 'utf-8')
+            validated_data['password'] = hash_password(password=validated_data['password'])
 
     def create(self, validated_data: dict) -> Any:
         random_password = None
@@ -122,7 +121,7 @@ class UserSerializer(serializers.ModelSerializer):
         # Disable write only option for random passwords
         if random_password:
             self.fields['password'].write_only = False
-            user.password = str(random_password, encoding='ascii')
+            user.password = random_password
 
         return user
 
