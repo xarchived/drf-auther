@@ -3,11 +3,6 @@ from django.db import models
 from fancy.models import FancyModel
 
 
-class Domain(FancyModel):
-    name = models.TextField(unique=True, null=False)
-    address = models.TextField(unique=True, null=False)
-
-
 class Perm(FancyModel):
     name = models.TextField(null=True, unique=True)
     regex = models.TextField(null=False, unique=True)
@@ -16,6 +11,11 @@ class Perm(FancyModel):
 class Role(FancyModel):
     name = models.TextField(unique=True, null=False)
     perms = models.ManyToManyField(Perm, related_name='roles')
+
+
+class Domain(FancyModel):
+    name = models.TextField(unique=True, null=False)
+    address = models.TextField(unique=True, null=False)
 
 
 class User(FancyModel):

@@ -8,11 +8,6 @@ from auther import serializers, auth, models, settings
 from fancy.viewsets import FancyViewSet
 
 
-class DomainViewSet(FancyViewSet):
-    queryset = models.Domain.objects.all()
-    serializer_class = serializers.DomainSerializer
-
-
 class PermViewSet(FancyViewSet):
     queryset = models.Perm.objects.all()
     serializer_class = serializers.PermSerializer
@@ -21,6 +16,11 @@ class PermViewSet(FancyViewSet):
 class RoleViewSet(FancyViewSet):
     queryset = models.Role.objects.all()
     serializer_class = serializers.RoleSerializer
+
+
+class DomainViewSet(FancyViewSet):
+    queryset = models.Domain.objects.all()
+    serializer_class = serializers.DomainSerializer
 
 
 class UserViewSet(FancyViewSet):
