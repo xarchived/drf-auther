@@ -1,36 +1,44 @@
-from django.db import models
+from django.db.models import (
+    TextField,
+    ManyToManyField,
+    BooleanField,
+    DateTimeField,
+    ForeignKey,
+    Model,
+    RESTRICT,
+)
 
 from fancy.models import SafeDeleteModel, LogFieldsModel
 
 
 class Perm(SafeDeleteModel, LogFieldsModel):
-    name = models.TextField(null=True, unique=True)
-    regex = models.TextField(null=False, unique=True)
+    name = TextField(null=True, unique=True)
+    regex = TextField(null=False, unique=True)
 
 
 class Role(SafeDeleteModel, LogFieldsModel):
-    name = models.TextField(unique=True, null=False)
-    perms = models.ManyToManyField(Perm, related_name='roles')
+    name = TextField(unique=True, null=False)
+    perms = ManyToManyField(Perm, related_name='roles')
 
 
 class Domain(SafeDeleteModel, LogFieldsModel):
-    name = models.TextField(unique=True, null=False)
-    address = models.TextField(unique=True, null=False)
+    name = TextField(unique=True, null=False)
+    address = TextField(unique=True, null=False)
 
 
 class User(SafeDeleteModel, LogFieldsModel):
-    name = models.TextField(null=True)
-    username = models.TextField(unique=True, null=False, max_length=64)
-    password = models.TextField(null=False, max_length=64)
-    avatar_token = models.TextField(null=True)
-    active = models.BooleanField(null=False, default=True)
-    expire = models.DateTimeField(null=True)
-    domain = models.ForeignKey(Domain, on_delete=models.RESTRICT, related_name='users', null=True)
-    role = models.ForeignKey(Role, on_delete=models.RESTRICT, related_name='users', null=True)
+    name = TextField(null=True)
+    username = TextField(unique=True, null=False, max_length=64)
+    password = TextField(null=False, max_length=64)
+    avatar_token = TextField(null=True)
+    active = BooleanField(null=False, default=True)
+    expire = DateTimeField(null=True)
+    domain = ForeignKey(Domain, on_delete=RESTRICT, related_name='users', null=True)
+    role = ForeignKey(Role, on_delete=RESTRICT, related_name='users', null=True)
 
 
-class Session(models.Model):
-    token = models.TextField(unique=True, max_length=64)
-    user = models.ForeignKey(User, on_delete=models.RESTRICT, related_name='sessions')
-    user_agent = models.TextField(max_length=200)
-    inserted_at = models.DateTimeField(auto_now_add=True)
+class Session(Model):
+    token = TextField(unique=True, max_length=64)
+    user = ForeignKey(User, on_delete=RESTRICT, related_name='sessions')
+    user_agent = TextField(max_length=200)
+    inserted_at = DateTimeField(auto_now_add=True)

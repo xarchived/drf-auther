@@ -4,39 +4,56 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from auther import serializers, auth, models, settings
+from auther.auth import authenticate, login, logout
+from auther.models import Perm, Role, Domain, User
+from auther.serializers import (
+    PermSerializer,
+    RoleSerializer,
+    DomainSerializer,
+    UserSerializer,
+    LoginSerializer,
+)
+from auther.settings import (
+    TOKEN_NAME,
+    TOKEN_DOMAIN,
+    TOKEN_PATH,
+    TOKEN_HTTPONLY,
+    TOKEN_EXPIRE,
+    TOKEN_SAMESITE,
+    TOKEN_SECURE,
+)
 from fancy.viewsets import FancyViewSet
 
 
 class PermViewSet(FancyViewSet):
-    queryset = models.Perm.objects.all()
-    serializer_class = serializers.PermSerializer
+    queryset = Perm.objects.all()
+    serializer_class = PermSerializer
 
 
 class RoleViewSet(FancyViewSet):
-    queryset = models.Role.objects.all()
-    serializer_class = serializers.RoleSerializer
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
 
 
 class DomainViewSet(FancyViewSet):
-    queryset = models.Domain.objects.all()
-    serializer_class = serializers.DomainSerializer
+    queryset = Domain.objects.all()
+    serializer_class = DomainSerializer
 
 
 class UserViewSet(FancyViewSet):
-    queryset = models.User.objects.all()
-    serializer_class = serializers.UserSerializer
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
 class LoginView(GenericAPIView):
-    serializer_class = serializers.LoginSerializer
+    serializer_class = LoginSerializer
 
     def post(self, request: Request) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = auth.authenticate(request.data['username'], request.data['password'])
-        token = auth.login(user, request.headers['User-Agent'])
+        user = authenticate(request.data['username'], request.data['password'])
+        token = login(user, request.headers['User-Agent'])
 
         response = Response({
             'id': user.id,
@@ -46,14 +63,14 @@ class LoginView(GenericAPIView):
         })
 
         response.set_cookie(
-            settings.TOKEN_NAME,
+            TOKEN_NAME,
             token,
-            domain=settings.TOKEN_DOMAIN,
-            path=settings.TOKEN_PATH,
-            httponly=settings.TOKEN_HTTPONLY,
-            max_age=settings.TOKEN_EXPIRE,
-            samesite=settings.TOKEN_SAMESITE,
-            secure=settings.TOKEN_SECURE,
+            domain=TOKEN_DOMAIN,
+            path=TOKEN_PATH,
+            httponly=TOKEN_HTTPONLY,
+            max_age=TOKEN_EXPIRE,
+            samesite=TOKEN_SAMESITE,
+            secure=TOKEN_SECURE,
         )
 
         return response
@@ -62,6 +79,6 @@ class LoginView(GenericAPIView):
 class LogoutView(APIView):
     # noinspection PyMethodMayBeStatic
     def post(self, request: Request) -> Response:
-        auth.logout(request)
+        logout(request)
 
         return Response(status=status.HTTP_204_NO_CONTENT)

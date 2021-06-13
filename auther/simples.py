@@ -1,27 +1,27 @@
-from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer
 
-from auther import models
+from auther.models import Role, Perm, Domain, User
 
 
-class SimpleRoleSerializer(serializers.ModelSerializer):
+class SimpleRoleSerializer(ModelSerializer):
     class Meta:
-        model = models.Role
+        model = Role
         exclude = ['perms']
 
 
-class SimplePermSerializer(serializers.ModelSerializer):
+class SimplePermSerializer(ModelSerializer):
     class Meta:
-        model = models.Perm
+        model = Perm
         exclude = []
 
 
-class SimpleDomainSerializer(serializers.ModelSerializer):
+class SimpleDomainSerializer(ModelSerializer):
     class Meta:
-        model = models.Domain
+        model = Domain
         exclude = []
 
 
-class SimpleUserSerializer(serializers.ModelSerializer):
+class SimpleUserSerializer(ModelSerializer):
     class Meta:
-        model = models.User
+        model = User
         exclude = ['password']

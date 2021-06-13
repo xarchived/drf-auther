@@ -1,16 +1,18 @@
 from typing import Any
 
 from django.db.models import Model
-from rest_framework import serializers, fields, relations
+from rest_framework.fields import CharField, DateTimeField, BooleanField
+from rest_framework.relations import PrimaryKeyRelatedField
+from rest_framework.serializers import ModelSerializer, Serializer
 
 from auther import models, simples, settings
 from auther.utils import generate_password, hash_password
 
 
-class PermSerializer(serializers.ModelSerializer):
-    name = fields.CharField(min_length=3, max_length=9, allow_blank=True)
-    regex = fields.CharField(min_length=1, max_length=64)
-    roles_ids = relations.PrimaryKeyRelatedField(
+class PermSerializer(ModelSerializer):
+    name = CharField(min_length=3, max_length=9, allow_blank=True)
+    regex = CharField(min_length=1, max_length=64)
+    roles_ids = PrimaryKeyRelatedField(
         source='roles',
         many=True,
         queryset=models.Role.objects.all(),
@@ -24,9 +26,9 @@ class PermSerializer(serializers.ModelSerializer):
         exclude = []
 
 
-class RoleSerializer(serializers.ModelSerializer):
-    name = fields.CharField(min_length=3, max_length=64)
-    users_ids = relations.PrimaryKeyRelatedField(
+class RoleSerializer(ModelSerializer):
+    name = CharField(min_length=3, max_length=64)
+    users_ids = PrimaryKeyRelatedField(
         source='users',
         many=True,
         queryset=models.User.objects.all(),
@@ -34,7 +36,7 @@ class RoleSerializer(serializers.ModelSerializer):
         allow_null=True,
     )
     users = simples.SimpleUserSerializer(many=True, read_only=True)
-    perms_ids = relations.PrimaryKeyRelatedField(
+    perms_ids = PrimaryKeyRelatedField(
         source='perms',
         many=True,
         queryset=models.Perm.objects.all(),
@@ -48,10 +50,10 @@ class RoleSerializer(serializers.ModelSerializer):
         exclude = []
 
 
-class DomainSerializer(serializers.ModelSerializer):
-    name = fields.CharField(min_length=1, max_length=99)
-    address = fields.CharField(min_length=4, max_length=99)
-    users_ids = relations.PrimaryKeyRelatedField(
+class DomainSerializer(ModelSerializer):
+    name = CharField(min_length=1, max_length=99)
+    address = CharField(min_length=4, max_length=99)
+    users_ids = PrimaryKeyRelatedField(
         source='users',
         many=True,
         queryset=models.User.objects.all(),
@@ -65,21 +67,21 @@ class DomainSerializer(serializers.ModelSerializer):
         exclude = []
 
 
-class UserSerializer(serializers.ModelSerializer):
-    name = fields.CharField(min_length=3, max_length=64, required=False, allow_null=True, allow_blank=True)
-    username = fields.CharField(min_length=6, max_length=64)
-    password = fields.CharField(min_length=8, max_length=64, write_only=True, required=False, allow_null=True)
-    avatar_token = fields.CharField(min_length=64, max_length=128, required=False, allow_null=True)
-    active = fields.BooleanField(allow_null=True, default=True, required=False)
-    expire = fields.DateTimeField(allow_null=True, required=False)
-    domain_id = relations.PrimaryKeyRelatedField(
+class UserSerializer(ModelSerializer):
+    name = CharField(min_length=3, max_length=64, required=False, allow_null=True, allow_blank=True)
+    username = CharField(min_length=6, max_length=64)
+    password = CharField(min_length=8, max_length=64, write_only=True, required=False, allow_null=True)
+    avatar_token = CharField(min_length=64, max_length=128, required=False, allow_null=True)
+    active = BooleanField(allow_null=True, default=True, required=False)
+    expire = DateTimeField(allow_null=True, required=False)
+    domain_id = PrimaryKeyRelatedField(
         source='domain',
         queryset=models.Domain.objects.all(),
         required=False,
         allow_null=True,
     )
     domain = simples.SimpleDomainSerializer(read_only=True)
-    role_id = relations.PrimaryKeyRelatedField(
+    role_id = PrimaryKeyRelatedField(
         source='role',
         queryset=models.Role.objects.all(),
         required=False,
@@ -134,17 +136,17 @@ class UserSerializer(serializers.ModelSerializer):
         return super(UserSerializer, self).update(instance=instance, validated_data=validated_data)
 
 
-class SessionSerializer(serializers.ModelSerializer):
-    token = fields.CharField(required=True, min_length=64, max_length=64)
-    user_id = relations.PrimaryKeyRelatedField(
+class SessionSerializer(ModelSerializer):
+    token = CharField(required=True, min_length=64, max_length=64)
+    user_id = PrimaryKeyRelatedField(
         source='user',
         queryset=models.User.objects.all(),
         required=False,
         allow_null=True,
     )
     user = simples.SimpleUserSerializer(read_only=True)
-    user_agent = fields.CharField(required=True, min_length=200)
-    inserted_at = fields.DateTimeField(read_only=True)
+    user_agent = CharField(required=True, min_length=200)
+    inserted_at = DateTimeField(read_only=True)
 
     class Meta:
         model = models.Session
@@ -152,6 +154,6 @@ class SessionSerializer(serializers.ModelSerializer):
 
 
 # noinspection PyAbstractClass
-class LoginSerializer(serializers.Serializer):
-    username = fields.CharField(min_length=4, max_length=64)
-    password = fields.CharField(min_length=6, max_length=64, write_only=True)
+class LoginSerializer(Serializer):
+    username = CharField(min_length=4, max_length=64)
+    password = CharField(min_length=6, max_length=64, write_only=True)

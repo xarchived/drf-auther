@@ -7,17 +7,18 @@ from redisary import Redisary
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated, APIException
 from rest_framework.request import Request
 
-from auther import models, settings
+from auther.models import Role, Domain, User
+from auther.settings import REDIS_DB, TOKEN_NAME, LOGIN_PAGE
 
 
 class AuthMiddleware:
     def __init__(self, get_response: Callable) -> None:
         self.get_response = get_response
-        self.tokens = Redisary(db=settings.REDIS_DB)
+        self.tokens = Redisary(db=REDIS_DB)
         self.password_pattern = b'"password"\\s*:\\s*".*?"'
 
         self.patterns = dict()
-        for role in models.Role.objects.all():
+        for role in Role.objects.all():
             self.patterns[role.name] = [perm.regex for perm in role.perms.all()]
 
         empty = True
@@ -39,25 +40,25 @@ class AuthMiddleware:
 
     def _fill_credential(self, request: Request) -> None:
         request.credential = None
-        token = request.COOKIES.get(settings.TOKEN_NAME)
+        token = request.COOKIES.get(TOKEN_NAME)
 
         if not token:
             return
 
         if token not in self.tokens:
-            if request.path == settings.LOGIN_PAGE:
+            if request.path == LOGIN_PAGE:
                 return
 
             raise NotAuthenticated('Token not found')
 
         raw = json.loads(self.tokens[token])
-        user = models.User(
+        user = User(
             id=raw['id'],
             name=raw['name'],
             username=raw['username'],
             avatar_token=raw['avatar_token'],
-            role=models.Role(name=raw['role']),
-            domain=models.Domain(address=raw['domain']),
+            role=Role(name=raw['role']),
+            domain=Domain(address=raw['domain']),
         )
         request.credential = user
 
