@@ -1,24 +1,24 @@
 from django.db import models
 
-from fancy.models import FancyModel
+from fancy.models import SafeDeleteModel, LogFieldsModel
 
 
-class Perm(FancyModel):
+class Perm(SafeDeleteModel, LogFieldsModel):
     name = models.TextField(null=True, unique=True)
     regex = models.TextField(null=False, unique=True)
 
 
-class Role(FancyModel):
+class Role(SafeDeleteModel, LogFieldsModel):
     name = models.TextField(unique=True, null=False)
     perms = models.ManyToManyField(Perm, related_name='roles')
 
 
-class Domain(FancyModel):
+class Domain(SafeDeleteModel, LogFieldsModel):
     name = models.TextField(unique=True, null=False)
     address = models.TextField(unique=True, null=False)
 
 
-class User(FancyModel):
+class User(SafeDeleteModel, LogFieldsModel):
     name = models.TextField(null=True)
     username = models.TextField(unique=True, null=False, max_length=64)
     password = models.TextField(null=False, max_length=64)
