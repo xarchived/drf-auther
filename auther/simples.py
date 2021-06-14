@@ -3,16 +3,16 @@ from rest_framework.serializers import ModelSerializer
 from auther.models import Role, Perm, Domain, User
 
 
-class SimpleRoleSerializer(ModelSerializer):
-    class Meta:
-        model = Role
-        exclude = ['perms']
-
-
 class SimplePermSerializer(ModelSerializer):
     class Meta:
         model = Perm
         exclude = []
+
+
+class SimpleRoleSerializer(ModelSerializer):
+    class Meta:
+        model = Role
+        exclude = ['perms']
 
 
 class SimpleDomainSerializer(ModelSerializer):
