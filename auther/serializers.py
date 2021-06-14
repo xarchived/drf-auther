@@ -3,13 +3,14 @@ from typing import Any
 from django.db.models import Model
 from rest_framework.fields import CharField, DateTimeField, BooleanField
 from rest_framework.relations import PrimaryKeyRelatedField
-from rest_framework.serializers import ModelSerializer, Serializer
+from rest_framework.serializers import Serializer, ModelSerializer
 
 from auther import models, simples, settings
 from auther.utils import generate_password, hash_password
+from fancy.serializers import CommonFieldsSerializer
 
 
-class PermSerializer(ModelSerializer):
+class PermSerializer(CommonFieldsSerializer):
     name = CharField(min_length=3, max_length=9, allow_blank=True)
     regex = CharField(min_length=1, max_length=64)
     roles_ids = PrimaryKeyRelatedField(
@@ -23,10 +24,16 @@ class PermSerializer(ModelSerializer):
 
     class Meta:
         model = models.Perm
-        exclude = []
+        fields = [
+            *CommonFieldsSerializer.Meta.fields,
+            'name',
+            'regex',
+            'roles_ids',
+            'roles',
+        ]
 
 
-class RoleSerializer(ModelSerializer):
+class RoleSerializer(CommonFieldsSerializer):
     name = CharField(min_length=3, max_length=64)
     users_ids = PrimaryKeyRelatedField(
         source='users',
@@ -47,10 +54,17 @@ class RoleSerializer(ModelSerializer):
 
     class Meta:
         model = models.Role
-        exclude = []
+        fields = [
+            *CommonFieldsSerializer.Meta.fields,
+            'name',
+            'users_ids',
+            'users',
+            'perms_ids',
+            'perms',
+        ]
 
 
-class DomainSerializer(ModelSerializer):
+class DomainSerializer(CommonFieldsSerializer):
     name = CharField(min_length=1, max_length=99)
     address = CharField(min_length=4, max_length=99)
     users_ids = PrimaryKeyRelatedField(
@@ -64,10 +78,16 @@ class DomainSerializer(ModelSerializer):
 
     class Meta:
         model = models.Domain
-        exclude = []
+        fields = [
+            *CommonFieldsSerializer.Meta.fields,
+            'name',
+            'address',
+            'users_ids',
+            'users',
+        ]
 
 
-class UserSerializer(ModelSerializer):
+class UserSerializer(CommonFieldsSerializer):
     name = CharField(min_length=3, max_length=64, required=False, allow_null=True, allow_blank=True)
     username = CharField(min_length=6, max_length=64)
     password = CharField(min_length=8, max_length=64, write_only=True, required=False, allow_null=True)
@@ -91,7 +111,19 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = models.User
-        exclude = []
+        fields = [
+            *CommonFieldsSerializer.Meta.fields,
+            'name',
+            'username',
+            'password',
+            'avatar_token',
+            'active',
+            'expire',
+            'domain_id',
+            'domain',
+            'role_id',
+            'role',
+        ]
 
     @staticmethod
     def _hash_password_field(validated_data: dict) -> dict:
@@ -150,7 +182,14 @@ class SessionSerializer(ModelSerializer):
 
     class Meta:
         model = models.Session
-        exclude = []
+        fields = [
+            'id',
+            'token',
+            'user_id',
+            'user',
+            'user_agent',
+            'inserted_at',
+        ]
 
 
 # noinspection PyAbstractClass

@@ -1,27 +1,48 @@
 from rest_framework.serializers import ModelSerializer
 
 from auther.models import Role, Perm, Domain, User
+from fancy.serializers import CommonFieldsSerializer
 
 
-class SimplePermSerializer(ModelSerializer):
+class SimplePermSerializer(CommonFieldsSerializer):
     class Meta:
         model = Perm
-        exclude = []
+        fields = [
+            *CommonFieldsSerializer.Meta.fields,
+            'name',
+            'regex',
+        ]
 
 
-class SimpleRoleSerializer(ModelSerializer):
+class SimpleRoleSerializer(CommonFieldsSerializer):
     class Meta:
         model = Role
-        exclude = ['perms']
+        fields = [
+            *CommonFieldsSerializer.Meta.fields,
+            'name',
+        ]
 
 
-class SimpleDomainSerializer(ModelSerializer):
+class SimpleDomainSerializer(CommonFieldsSerializer):
     class Meta:
         model = Domain
-        exclude = []
+        fields = [
+            *CommonFieldsSerializer.Meta.fields,
+            'name',
+            'address',
+        ]
 
 
-class SimpleUserSerializer(ModelSerializer):
+class SimpleUserSerializer(CommonFieldsSerializer):
     class Meta:
         model = User
-        exclude = ['password']
+        fields = [
+            *CommonFieldsSerializer.Meta.fields,
+            'name',
+            'username',
+            'avatar_token',
+            'active',
+            'expire',
+            'domain_id',
+            'role_id',
+        ]
