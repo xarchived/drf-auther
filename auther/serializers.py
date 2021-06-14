@@ -35,14 +35,6 @@ class PermSerializer(CommonFieldsSerializer):
 
 class RoleSerializer(CommonFieldsSerializer):
     name = CharField(min_length=3, max_length=64)
-    users_ids = PrimaryKeyRelatedField(
-        source='users',
-        many=True,
-        queryset=models.User.objects.all(),
-        required=False,
-        allow_null=True,
-    )
-    users = simples.SimpleUserSerializer(many=True, read_only=True)
     perms_ids = PrimaryKeyRelatedField(
         source='perms',
         many=True,
@@ -57,8 +49,6 @@ class RoleSerializer(CommonFieldsSerializer):
         fields = [
             *CommonFieldsSerializer.Meta.fields,
             'name',
-            'users_ids',
-            'users',
             'perms_ids',
             'perms',
         ]
@@ -67,14 +57,6 @@ class RoleSerializer(CommonFieldsSerializer):
 class DomainSerializer(CommonFieldsSerializer):
     name = CharField(min_length=1, max_length=99)
     address = CharField(min_length=4, max_length=99)
-    users_ids = PrimaryKeyRelatedField(
-        source='users',
-        many=True,
-        queryset=models.User.objects.all(),
-        required=False,
-        allow_null=True,
-    )
-    users = simples.SimpleUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.Domain
@@ -82,8 +64,6 @@ class DomainSerializer(CommonFieldsSerializer):
             *CommonFieldsSerializer.Meta.fields,
             'name',
             'address',
-            'users_ids',
-            'users',
         ]
 
 
