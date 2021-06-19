@@ -1,4 +1,3 @@
-from django.conf import settings
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
@@ -6,14 +5,24 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from auther.auth import authenticate, login, logout
-from auther.models import Domain, Role, Perm, User
-from auther.serializers import DomainSerializer, PermSerializer, RoleSerializer, UserSerializer, LoginSerializer
+from auther.models import Perm, Role, Domain, User
+from auther.serializers import (
+    PermSerializer,
+    RoleSerializer,
+    DomainSerializer,
+    UserSerializer,
+    LoginSerializer,
+)
+from auther.settings import (
+    TOKEN_NAME,
+    TOKEN_DOMAIN,
+    TOKEN_PATH,
+    TOKEN_HTTPONLY,
+    TOKEN_EXPIRE,
+    TOKEN_SAMESITE,
+    TOKEN_SECURE,
+)
 from fancy.viewsets import FancyViewSet
-
-
-class DomainViewSet(FancyViewSet):
-    queryset = Domain.objects.all()
-    serializer_class = DomainSerializer
 
 
 class PermViewSet(FancyViewSet):
@@ -24,6 +33,11 @@ class PermViewSet(FancyViewSet):
 class RoleViewSet(FancyViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
+
+
+class DomainViewSet(FancyViewSet):
+    queryset = Domain.objects.all()
+    serializer_class = DomainSerializer
 
 
 class UserViewSet(FancyViewSet):
@@ -49,14 +63,14 @@ class LoginView(GenericAPIView):
         })
 
         response.set_cookie(
-            settings.AUTHER['TOKEN_NAME'],
+            TOKEN_NAME,
             token,
-            domain=settings.AUTHER['TOKEN_DOMAIN'],
-            path=settings.AUTHER['TOKEN_PATH'],
-            httponly=settings.AUTHER['TOKEN_HTTPONLY'],
-            max_age=settings.AUTHER['TOKEN_EXPIRE'],
-            samesite=settings.AUTHER['TOKEN_SAMESITE'],
-            secure=settings.AUTHER['TOKEN_SECURE'],
+            domain=TOKEN_DOMAIN,
+            path=TOKEN_PATH,
+            httponly=TOKEN_HTTPONLY,
+            max_age=TOKEN_EXPIRE,
+            samesite=TOKEN_SAMESITE,
+            secure=TOKEN_SECURE,
         )
 
         return response

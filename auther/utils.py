@@ -4,18 +4,18 @@ import string
 import bcrypt
 
 
-def generate_password(length: int) -> bytes:
+def generate_password(length: int) -> str:
     alphabet = string.ascii_letters + string.digits
     password = ''.join(secrets.choice(alphabet) for _ in range(length))
-    return bytes(password, encoding='ascii')
+    return password
 
 
 def generate_token() -> str:
     return secrets.token_urlsafe(48)  # 64 characters
 
 
-def hash_password(password: bytes) -> bytes:
-    return bcrypt.hashpw(password, bcrypt.gensalt())
+def hash_password(password: str) -> str:
+    return str(bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()), 'utf-8')
 
 
 def check_password(password: str, hashed_password: str) -> bool:

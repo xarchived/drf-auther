@@ -1,112 +1,135 @@
 from typing import Any
 
-from django.conf import settings
 from django.db.models import Model
-from rest_framework import serializers, fields, relations
+from rest_framework.fields import CharField, DateTimeField, BooleanField
+from rest_framework.relations import PrimaryKeyRelatedField
+from rest_framework.serializers import Serializer, ModelSerializer
 
-from auther.models import Domain, Role, User, Perm
+from auther import models, simples, settings
 from auther.utils import generate_password, hash_password
-from fancy.serializers import FancySerializer
+from fancy.serializers import CommonFieldsSerializer
 
 
-class BasicDomainSerializer(FancySerializer):
-    class Meta:
-        model = Domain
-        exclude = []
-
-
-class BasicPermSerializer(FancySerializer):
-    class Meta:
-        model = Perm
-        exclude = []
-
-
-class BasicRoleSerializer(FancySerializer):
-    class Meta:
-        model = Role
-        exclude = ['perms']
-
-
-class BasicUserSerializer(FancySerializer):
-    class Meta:
-        model = User
-        exclude = ['password']
-
-
-class DomainSerializer(FancySerializer):
-    name = fields.CharField(min_length=1, max_length=99)
-    address = fields.CharField(min_length=4, max_length=99)
-    users_ids = relations.PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
-    users = BasicUserSerializer(many=True, required=False)
+class PermSerializer(CommonFieldsSerializer):
+    name = CharField(min_length=3, max_length=9, allow_blank=True)
+    regex = CharField(min_length=1, max_length=64)
+    roles_ids = PrimaryKeyRelatedField(
+        source='roles',
+        many=True,
+        queryset=models.Role.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+    roles = simples.SimpleRoleSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Domain
-        exclude = []
+        model = models.Perm
+        fields = [
+            *CommonFieldsSerializer.Meta.fields,
+            'name',
+            'regex',
+            'roles_ids',
+            'roles',
+        ]
 
 
-class PermSerializer(FancySerializer):
-    name = fields.CharField(min_length=3, max_length=9, allow_blank=True)
-    regex = fields.CharField(min_length=1, max_length=64)
-    roles_ids = relations.PrimaryKeyRelatedField(source='roles', many=True, queryset=Role.objects.all(), required=False)
-    roles = BasicRoleSerializer(many=True, required=False)
-
-    class Meta:
-        model = Perm
-        exclude = []
-
-
-class RoleSerializer(FancySerializer):
-    name = fields.CharField(min_length=3, max_length=64)
-    users_ids = relations.PrimaryKeyRelatedField(source='users', many=True, queryset=User.objects.all(), required=False)
-    users = BasicUserSerializer(many=True, required=False)
-    perms_ids = relations.PrimaryKeyRelatedField(source='perms', many=True, queryset=Perm.objects.all(), required=False)
-    perms = BasicPermSerializer(many=True, required=False)
-
-    class Meta:
-        model = Role
-        exclude = []
-
-
-class UserSerializer(FancySerializer):
-    name = fields.CharField(min_length=3, max_length=64, required=False, allow_blank=True)
-    username = fields.CharField(min_length=6, max_length=64)
-    password = fields.CharField(min_length=8, max_length=64, write_only=True, required=False)
-    avatar_token = fields.CharField(min_length=64, max_length=128, required=False)
-    active = fields.BooleanField(allow_null=True, default=True, required=False)
-    expire = fields.DateTimeField(allow_null=True, required=False)
-    domain_id = relations.PrimaryKeyRelatedField(source='domain', queryset=Domain.objects.all(), required=False)
-    domain = BasicDomainSerializer(required=False)
-    role_id = relations.PrimaryKeyRelatedField(source='role', queryset=Role.objects.all(), required=False)
-    role = BasicRoleSerializer(required=False)
+class RoleSerializer(CommonFieldsSerializer):
+    name = CharField(min_length=3, max_length=64)
+    perms_ids = PrimaryKeyRelatedField(
+        source='perms',
+        many=True,
+        queryset=models.Perm.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+    perms = simples.SimplePermSerializer(many=True, read_only=True)
 
     class Meta:
-        model = User
-        exclude = []
+        model = models.Role
+        fields = [
+            *CommonFieldsSerializer.Meta.fields,
+            'name',
+            'perms_ids',
+            'perms',
+        ]
+
+
+class DomainSerializer(CommonFieldsSerializer):
+    name = CharField(min_length=1, max_length=99)
+    address = CharField(min_length=4, max_length=99)
+
+    class Meta:
+        model = models.Domain
+        fields = [
+            *CommonFieldsSerializer.Meta.fields,
+            'name',
+            'address',
+        ]
+
+
+class UserSerializer(CommonFieldsSerializer):
+    name = CharField(min_length=3, max_length=64, required=False, allow_null=True, allow_blank=True)
+    username = CharField(min_length=6, max_length=64)
+    password = CharField(min_length=8, max_length=64, write_only=True, required=False, allow_null=True)
+    avatar_token = CharField(min_length=64, max_length=128, required=False, allow_null=True)
+    active = BooleanField(allow_null=True, default=True, required=False)
+    expire = DateTimeField(allow_null=True, required=False)
+    domain_id = PrimaryKeyRelatedField(
+        source='domain',
+        queryset=models.Domain.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+    domain = simples.SimpleDomainSerializer(read_only=True)
+    role_id = PrimaryKeyRelatedField(
+        source='role',
+        queryset=models.Role.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+    role = simples.SimpleRoleSerializer(read_only=True)
+
+    class Meta:
+        model = models.User
+        fields = [
+            *CommonFieldsSerializer.Meta.fields,
+            'name',
+            'username',
+            'password',
+            'avatar_token',
+            'active',
+            'expire',
+            'domain_id',
+            'domain',
+            'role_id',
+            'role',
+        ]
 
     @staticmethod
-    def _hash_password_field(validated_data: dict):
+    def _hash_password_field(validated_data: dict) -> dict:
         if 'password' in validated_data:
-            validated_data['password'] = hash_password(password=validated_data['password'].encode('utf-8'))
-            validated_data['password'] = str(validated_data['password'], 'utf-8')
+            validated_data['password'] = hash_password(password=validated_data['password'])
+
+        return validated_data
 
     def create(self, validated_data: dict) -> Any:
         random_password = None
 
         # If there is a password field we will hash it
-        self._hash_password_field(validated_data)
+        validated_data = self._hash_password_field(validated_data)
 
         # Create a role with same name as model and add it to user
-        default_role = settings.AUTHER.get('DEFAULT_ROLE')
+        default_role = settings.DEFAULT_ROLE
         if default_role and 'role_id' not in self.initial_data and 'role' not in self.initial_data:
             role_name = self.Meta.model.__name__.lower()
-            role, _ = Role.objects.get_or_create(name=role_name)
-            self.validated_data['role_id'] = role.id
+            role, _ = models.Role.objects.get_or_create(name=role_name)
+            validated_data['role_id'] = role.id
 
         # If password is not provided we generate a random one
         if 'password' not in self.initial_data:
             random_password = generate_password(8)
-            hashed_password = str(hash_password(random_password), encoding='ascii')
-            self.validated_data['password'] = hashed_password
+            validated_data['password'] = random_password
+            validated_data = self._hash_password_field(validated_data)
 
         # Store record into database
         user = super(UserSerializer, self).create(validated_data)
@@ -114,25 +137,42 @@ class UserSerializer(FancySerializer):
         # Disable write only option for random passwords
         if random_password:
             self.fields['password'].write_only = False
-            user.password = str(random_password, encoding='ascii')
+            user.password = random_password
 
         return user
 
     def update(self, instance: Model, validated_data: dict) -> Any:
         # If there is a password field we will hash it
-        self._hash_password_field(validated_data)
+        validated_data = self._hash_password_field(validated_data)
 
         return super(UserSerializer, self).update(instance=instance, validated_data=validated_data)
 
 
+class SessionSerializer(ModelSerializer):
+    token = CharField(required=True, min_length=64, max_length=64)
+    user_id = PrimaryKeyRelatedField(
+        source='user',
+        queryset=models.User.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+    user = simples.SimpleUserSerializer(read_only=True)
+    user_agent = CharField(required=True, min_length=200)
+    inserted_at = DateTimeField(read_only=True)
+
+    class Meta:
+        model = models.Session
+        fields = [
+            'id',
+            'token',
+            'user_id',
+            'user',
+            'user_agent',
+            'inserted_at',
+        ]
+
+
 # noinspection PyAbstractClass
-class LoginSerializer(serializers.Serializer):
-    username = fields.CharField(min_length=4, max_length=64)
-    password = fields.CharField(min_length=6, max_length=64, write_only=True)
-
-
-class SessionSerializer(FancySerializer):
-    token = fields.CharField(required=True, min_length=64, max_length=64)
-    user = UserSerializer(required=True)
-    user_agent = fields.CharField(required=True, min_length=200)
-    inserted_at = fields.DateTimeField(read_only=True)
+class LoginSerializer(Serializer):
+    username = CharField(min_length=4, max_length=64)
+    password = CharField(min_length=6, max_length=64, write_only=True)

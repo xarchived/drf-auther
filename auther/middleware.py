@@ -2,19 +2,19 @@ import json
 import re
 from typing import Any, Callable
 
-from django.conf import settings
 from django.http import JsonResponse
 from redisary import Redisary
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated, APIException
 from rest_framework.request import Request
 
 from auther.models import Role, Domain, User
+from auther.settings import REDIS_DB, TOKEN_NAME, LOGIN_PAGE
 
 
 class AuthMiddleware:
     def __init__(self, get_response: Callable) -> None:
         self.get_response = get_response
-        self.tokens = Redisary(db=settings.AUTHER['REDIS_DB'])
+        self.tokens = Redisary(db=REDIS_DB)
         self.password_pattern = b'"password"\\s*:\\s*".*?"'
 
         self.patterns = dict()
@@ -40,13 +40,13 @@ class AuthMiddleware:
 
     def _fill_credential(self, request: Request) -> None:
         request.credential = None
-        token = request.COOKIES.get(settings.AUTHER['TOKEN_NAME'])
+        token = request.COOKIES.get(TOKEN_NAME)
 
         if not token:
             return
 
         if token not in self.tokens:
-            if request.path == settings.AUTHER['LOGIN_PAGE']:
+            if request.path == LOGIN_PAGE:
                 return
 
             raise NotAuthenticated('Token not found')
