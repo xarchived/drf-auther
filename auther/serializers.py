@@ -76,7 +76,6 @@ class UserSerializer(CommonFieldsSerializer):
         validators=[validators.UniqueValidator(queryset=models.User.objects.all())],
     )
     password = CharField(min_length=8, max_length=64, write_only=True, required=False, allow_null=True)
-    avatar_token = CharField(min_length=64, max_length=128, required=False, allow_null=True)
     active = BooleanField(allow_null=True, default=True, required=False)
     expire = DateTimeField(allow_null=True, required=False)
     domain_id = PrimaryKeyRelatedField(
@@ -101,7 +100,6 @@ class UserSerializer(CommonFieldsSerializer):
             'name',
             'username',
             'password',
-            'avatar_token',
             'active',
             'expire',
             'domain_id',

@@ -30,7 +30,6 @@ class User(SafeDeleteModel, LogFieldsModel):
     name = TextField(null=True)
     username = TextField(unique=True, null=False, max_length=64)
     password = TextField(null=False, max_length=64)
-    avatar_token = TextField(null=True)
     active = BooleanField(null=False, default=True)
     expire = DateTimeField(null=True)
     domain = ForeignKey(Domain, on_delete=RESTRICT, related_name='users', null=True)
