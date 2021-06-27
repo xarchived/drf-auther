@@ -82,8 +82,8 @@ class LogoutView(APIView):
 
         response = Response(status=status.HTTP_204_NO_CONTENT)
         response.delete_cookie(
-            settings.AUTHER['TOKEN_NAME'],
-            domain=settings.AUTHER['TOKEN_DOMAIN'],
-            path=settings.AUTHER['TOKEN_PATH'],
+            TOKEN_NAME,
+            domain=TOKEN_DOMAIN,
+            path=TOKEN_PATH,
         )
         return response
