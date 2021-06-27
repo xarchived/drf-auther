@@ -46,7 +46,6 @@ def login(user: models.User, user_agent: str) -> str:
         'id': user.id,
         'name': user.name,
         'username': user.username,
-        'avatar_token': user.avatar_token,
         'domain': user.domain.address if user.domain else None,
         'role': user.role.name if user.role else None,
     }

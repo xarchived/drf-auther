@@ -40,7 +40,6 @@ class SimpleUserSerializer(CommonFieldsSerializer):
             *CommonFieldsSerializer.Meta.fields,
             'name',
             'username',
-            'avatar_token',
             'active',
             'expire',
             'domain_id',

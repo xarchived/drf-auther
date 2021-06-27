@@ -58,7 +58,6 @@ class LoginView(GenericAPIView):
         response = Response({
             'id': user.id,
             'name': user.name,
-            'avatar_token': user.avatar_token,
             'role': user.role.name if user.role else None,
         })
 

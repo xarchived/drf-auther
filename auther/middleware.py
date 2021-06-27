@@ -56,7 +56,6 @@ class AuthMiddleware:
             id=raw['id'],
             name=raw['name'],
             username=raw['username'],
-            avatar_token=raw['avatar_token'],
             role=Role(name=raw['role']),
             domain=Domain(address=raw['domain']),
         )
