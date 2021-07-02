@@ -8,7 +8,7 @@ from rest_framework.exceptions import PermissionDenied, NotAuthenticated, APIExc
 from rest_framework.request import Request
 
 from auther.models import Role
-from auther.settings import REDIS_DB, TOKEN_NAME, LOGIN_PAGE
+from auther.settings import REDIS_DB, TOKEN_NAME, LOGIN_PAGE, DEBUG
 
 
 class AuthMiddleware:
@@ -74,10 +74,14 @@ class AuthMiddleware:
             self._fill_credential(request)
             self._check_permission(request)
         except Exception as e:
+            if DEBUG:
+                raise e
+
             if isinstance(e, APIException):
                 return JsonResponse(
                     data={'detail': e.detail},
-                    status=e.status_code)
+                    status=e.status_code,
+                )
             return JsonResponse({'detail': 'Authentication error'}, status=500)
 
         return self.get_response(request)

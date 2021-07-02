@@ -1,5 +1,6 @@
 from django.conf import settings
 
+DEBUG = settings.DEBUG
 REDIS_DB = settings.AUTHER['REDIS_DB']
 MAX_SESSIONS = settings.AUTHER['MAX_SESSIONS']
 TOKEN_NAME = settings.AUTHER['TOKEN_NAME']
