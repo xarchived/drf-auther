@@ -55,10 +55,11 @@ class LoginView(GenericAPIView):
         user = authenticate(request.data['username'], request.data['password'])
         token = login(user, request.headers['User-Agent'])
 
+        # TODO: write a function to do this
         response = Response({
             'id': user.id,
             'name': user.name,
-            'role': user.role.name if user.role else None,
+            'roles': [role.name for role in user.roles.all()],
         })
 
         response.set_cookie(

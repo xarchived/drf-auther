@@ -6,7 +6,7 @@ from rest_framework.fields import CharField, DateTimeField, BooleanField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer, ModelSerializer
 
-from auther import models, simples, settings
+from auther import models, simples
 from auther.utils import generate_password, hash_password
 from fancy.serializers import CommonFieldsSerializer
 
@@ -85,13 +85,14 @@ class UserSerializer(CommonFieldsSerializer):
         allow_null=True,
     )
     domain = simples.SimpleDomainSerializer(read_only=True)
-    role_id = PrimaryKeyRelatedField(
-        source='role',
+    roles_ids = PrimaryKeyRelatedField(
+        source='roles',
+        many=True,
         queryset=models.Role.objects.all(),
         required=False,
         allow_null=True,
     )
-    role = simples.SimpleRoleSerializer(read_only=True)
+    roles = simples.SimpleRoleSerializer(many=True, read_only=True)
 
     class Meta:
         model = models.User
@@ -104,8 +105,8 @@ class UserSerializer(CommonFieldsSerializer):
             'expire',
             'domain_id',
             'domain',
-            'role_id',
-            'role',
+            'roles_ids',
+            'roles',
         ]
 
     @staticmethod
@@ -120,13 +121,6 @@ class UserSerializer(CommonFieldsSerializer):
 
         # If there is a password field we will hash it
         validated_data = self._hash_password_field(validated_data)
-
-        # Create a role with same name as model and add it to user
-        default_role = settings.DEFAULT_ROLE
-        if default_role and 'role_id' not in self.initial_data and 'role' not in self.initial_data:
-            role_name = self.Meta.model.__name__.lower()
-            role, _ = models.Role.objects.get_or_create(name=role_name)
-            validated_data['role_id'] = role.id
 
         # If password is not provided we generate a random one
         if 'password' not in self.initial_data:

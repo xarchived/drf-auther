@@ -7,7 +7,7 @@ from redisary import Redisary
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated, APIException
 from rest_framework.request import Request
 
-from auther.models import Role, Domain, User
+from auther.models import Role
 from auther.settings import REDIS_DB, TOKEN_NAME, LOGIN_PAGE
 
 
@@ -51,15 +51,7 @@ class AuthMiddleware:
 
             raise NotAuthenticated('Token not found')
 
-        raw = json.loads(self.tokens[token])
-        user = User(
-            id=raw['id'],
-            name=raw['name'],
-            username=raw['username'],
-            role=Role(name=raw['role']),
-            domain=Domain(address=raw['domain']),
-        )
-        request.credential = user
+        request.credential = json.loads(self.tokens[token])
 
     def _check_permission(self, request: Request) -> None:
         if not self.patterns:
@@ -71,8 +63,9 @@ class AuthMiddleware:
         if request.credential is None:
             raise NotAuthenticated('Token dose not exist')
 
-        if self._authorized(request, request.credential.role.name):
-            return
+        for role in request.credential['roles']:
+            if self._authorized(request, role):
+                return
 
         raise PermissionDenied('Access Denied')
 

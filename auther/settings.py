@@ -2,7 +2,6 @@ from django.conf import settings
 
 REDIS_DB = settings.AUTHER['REDIS_DB']
 MAX_SESSIONS = settings.AUTHER['MAX_SESSIONS']
-DEFAULT_ROLE = settings.AUTHER.get('DEFAULT_ROLE')
 TOKEN_NAME = settings.AUTHER['TOKEN_NAME']
 TOKEN_DOMAIN = settings.AUTHER['TOKEN_DOMAIN']
 TOKEN_PATH = settings.AUTHER['TOKEN_PATH']
