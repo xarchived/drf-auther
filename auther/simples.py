@@ -43,5 +43,4 @@ class SimpleUserSerializer(CommonFieldsSerializer):
             'active',
             'expire',
             'domain_id',
-            'role_id',
         ]
