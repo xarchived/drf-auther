@@ -35,9 +35,9 @@ class User(SafeDeleteModel, LogFieldsModel):
     domain = ForeignKey(Domain, on_delete=RESTRICT, related_name='users', null=True)
     roles = ManyToManyField(Role, related_name='users')
 
-    # noinspection PyUnresolvedReferences
     @property
     def as_simple_dict(self) -> dict:
+        # noinspection PyUnresolvedReferences
         return {
             'id': self.id,
             'name': self.name,
