@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from auther.auth import authenticate, login, logout
+from auther.decorators import check_privilege
 from auther.models import Perm, Role, Domain, User
 from auther.serializers import (
     PermSerializer,
@@ -22,6 +23,7 @@ from auther.settings import (
     TOKEN_SAMESITE,
     TOKEN_SECURE,
 )
+from fancy.decorators import credential_required
 from fancy.viewsets import FancyViewSet
 
 
@@ -43,6 +45,26 @@ class DomainViewSet(FancyViewSet):
 class UserViewSet(FancyViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    @credential_required
+    @check_privilege
+    def create(self, request, *args, **kwargs):
+        return super().create(request=request, *args, **kwargs)
+
+    @credential_required
+    @check_privilege
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @credential_required
+    @check_privilege
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @credential_required
+    @check_privilege
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 
 class LoginView(GenericAPIView):
