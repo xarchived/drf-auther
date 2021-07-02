@@ -42,15 +42,7 @@ def login(user: models.User, user_agent: str) -> str:
     session = models.Session(token=token, user=user, user_agent=user_agent)
     session.save()
 
-    # TODO: write a function to do this
-    payload = {
-        'id': user.id,
-        'name': user.name,
-        'username': user.username,
-        'domain': user.domain.address if user.domain else None,
-        'roles': [role.name for role in user.roles.all()],
-    }
-    tokens[token] = json.dumps(payload)
+    tokens[token] = json.dumps(user.as_simple_dict)
 
     return token
 
