@@ -3,6 +3,7 @@ from django.db.models import (
     ManyToManyField,
     BooleanField,
     DateTimeField,
+    IntegerField,
     ForeignKey,
     Model,
     RESTRICT,
@@ -19,6 +20,7 @@ class Perm(SafeDeleteModel, LogFieldsModel):
 class Role(SafeDeleteModel, LogFieldsModel):
     name = TextField(unique=True, null=False)
     perms = ManyToManyField(Perm, related_name='roles')
+    level = IntegerField(null=True)
 
 
 class Domain(SafeDeleteModel, LogFieldsModel):
