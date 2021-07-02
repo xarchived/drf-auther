@@ -1,5 +1,3 @@
-from rest_framework.serializers import ModelSerializer
-
 from auther.models import Role, Perm, Domain, User
 from fancy.serializers import CommonFieldsSerializer
 
