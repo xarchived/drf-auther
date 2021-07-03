@@ -47,7 +47,7 @@ class User(SafeDeleteModel, LogFieldsModel):
             'active': self.active,
             'expire': self.expire,
             'domain': self.domain.name if self.domain else None,
-            'roles': [role.name for role in self.roles.all()],
+            'roles': [role.name for role in self.roles.all().order_by('-level')],
         }
 
 
