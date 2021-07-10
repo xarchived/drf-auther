@@ -6,7 +6,8 @@ from rest_framework.fields import CharField, DateTimeField, BooleanField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer, ModelSerializer
 
-from auther import models, simples
+from auther.models import Domain, Role, User, Session, Perm
+from auther.simples import SimpleDomainSerializer, SimpleRoleSerializer, SimpleUserSerializer, SimplePermSerializer
 from auther.utils import generate_password, hash_password
 from fancy.serializers import CommonFieldsSerializer
 
@@ -17,14 +18,14 @@ class PermSerializer(CommonFieldsSerializer):
     roles_ids = PrimaryKeyRelatedField(
         source='roles',
         many=True,
-        queryset=models.Role.objects.all(),
+        queryset=Role.objects.all(),
         required=False,
         allow_null=True,
     )
-    roles = simples.SimpleRoleSerializer(many=True, read_only=True)
+    roles = SimpleRoleSerializer(many=True, read_only=True)
 
     class Meta:
-        model = models.Perm
+        model = Perm
         fields = [
             *CommonFieldsSerializer.Meta.fields,
             'name',
@@ -39,14 +40,14 @@ class RoleSerializer(CommonFieldsSerializer):
     perms_ids = PrimaryKeyRelatedField(
         source='perms',
         many=True,
-        queryset=models.Perm.objects.all(),
+        queryset=Perm.objects.all(),
         required=False,
         allow_null=True,
     )
-    perms = simples.SimplePermSerializer(many=True, read_only=True)
+    perms = SimplePermSerializer(many=True, read_only=True)
 
     class Meta:
-        model = models.Role
+        model = Role
         fields = [
             *CommonFieldsSerializer.Meta.fields,
             'name',
@@ -60,7 +61,7 @@ class DomainSerializer(CommonFieldsSerializer):
     address = CharField(min_length=4, max_length=99)
 
     class Meta:
-        model = models.Domain
+        model = Domain
         fields = [
             *CommonFieldsSerializer.Meta.fields,
             'name',
@@ -73,29 +74,29 @@ class UserSerializer(CommonFieldsSerializer):
     username = CharField(
         min_length=6,
         max_length=64,
-        validators=[validators.UniqueValidator(queryset=models.User.objects.all())],
+        validators=[validators.UniqueValidator(queryset=User.objects.all())],
     )
     password = CharField(min_length=8, max_length=64, write_only=True, required=False, allow_null=True)
     active = BooleanField(allow_null=True, default=True, required=False)
     expire = DateTimeField(allow_null=True, required=False)
     domain_id = PrimaryKeyRelatedField(
         source='domain',
-        queryset=models.Domain.objects.all(),
+        queryset=Domain.objects.all(),
         required=False,
         allow_null=True,
     )
-    domain = simples.SimpleDomainSerializer(read_only=True)
+    domain = SimpleDomainSerializer(read_only=True)
     roles_ids = PrimaryKeyRelatedField(
         source='roles',
         many=True,
-        queryset=models.Role.objects.all(),
+        queryset=Role.objects.all(),
         required=False,
         allow_null=True,
     )
-    roles = simples.SimpleRoleSerializer(many=True, read_only=True)
+    roles = SimpleRoleSerializer(many=True, read_only=True)
 
     class Meta:
-        model = models.User
+        model = User
         fields = [
             *CommonFieldsSerializer.Meta.fields,
             'name',
@@ -149,16 +150,16 @@ class SessionSerializer(ModelSerializer):
     token = CharField(required=True, min_length=64, max_length=64)
     user_id = PrimaryKeyRelatedField(
         source='user',
-        queryset=models.User.objects.all(),
+        queryset=User.objects.all(),
         required=False,
         allow_null=True,
     )
-    user = simples.SimpleUserSerializer(read_only=True)
+    user = SimpleUserSerializer(read_only=True)
     user_agent = CharField(required=True, min_length=200)
     inserted_at = DateTimeField(read_only=True)
 
     class Meta:
-        model = models.Session
+        model = Session
         fields = [
             'id',
             'token',
