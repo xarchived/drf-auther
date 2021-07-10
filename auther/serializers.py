@@ -5,6 +5,7 @@ from rest_framework import validators
 from rest_framework.fields import CharField, DateTimeField, BooleanField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer, ModelSerializer
+from rest_framework.validators import UniqueValidator
 
 from auther.models import Domain, Role, User, Session, Perm
 from auther.simples import SimpleDomainSerializer, SimpleRoleSerializer, SimpleUserSerializer, SimplePermSerializer
@@ -13,7 +14,12 @@ from fancy.serializers import CommonFieldsSerializer
 
 
 class PermSerializer(CommonFieldsSerializer):
-    name = CharField(min_length=3, max_length=9, allow_blank=True)
+    name = CharField(
+        min_length=3,
+        max_length=9,
+        allow_blank=True,
+        validators=[UniqueValidator(queryset=Perm.objects.all())],
+    )
     regex = CharField(min_length=1, max_length=64)
     roles_ids = PrimaryKeyRelatedField(
         source='roles',
@@ -36,7 +42,11 @@ class PermSerializer(CommonFieldsSerializer):
 
 
 class RoleSerializer(CommonFieldsSerializer):
-    name = CharField(min_length=3, max_length=64)
+    name = CharField(
+        min_length=3,
+        max_length=64,
+        validators=[UniqueValidator(queryset=Role.objects.all())],
+    )
     perms_ids = PrimaryKeyRelatedField(
         source='perms',
         many=True,
@@ -57,7 +67,11 @@ class RoleSerializer(CommonFieldsSerializer):
 
 
 class DomainSerializer(CommonFieldsSerializer):
-    name = CharField(min_length=1, max_length=99)
+    name = CharField(
+        min_length=1,
+        max_length=99,
+        validators=[UniqueValidator(queryset=Domain.objects.all())],
+    )
     address = CharField(min_length=4, max_length=99)
 
     class Meta:
