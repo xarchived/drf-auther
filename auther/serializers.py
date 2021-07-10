@@ -1,7 +1,6 @@
 from typing import Any
 
 from django.db.models import Model
-from rest_framework import validators
 from rest_framework.fields import CharField, DateTimeField, BooleanField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer, ModelSerializer
@@ -88,7 +87,7 @@ class UserSerializer(CommonFieldsSerializer):
     username = CharField(
         min_length=6,
         max_length=64,
-        validators=[validators.UniqueValidator(queryset=User.objects.all())],
+        validators=[UniqueValidator(queryset=User.objects.all())],
     )
     password = CharField(min_length=8, max_length=64, write_only=True, required=False, allow_null=True)
     active = BooleanField(allow_null=True, default=True, required=False)
