@@ -1,5 +1,5 @@
 from django.urls import include, path
-from rest_framework import routers
+from rest_framework.routers import SimpleRouter
 
 from auther.views import (
     PermViewSet,
@@ -10,7 +10,7 @@ from auther.views import (
     LogoutView,
 )
 
-router = routers.DefaultRouter()
+router = SimpleRouter()
 router.register(r'perms', PermViewSet)
 router.register(r'roles', RoleViewSet)
 router.register(r'domains', DomainViewSet)
