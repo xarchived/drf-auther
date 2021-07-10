@@ -129,7 +129,7 @@ class UserSerializer(CommonFieldsSerializer):
             validated_data = self._hash_password_field(validated_data)
 
         # Store record into database
-        user = super(UserSerializer, self).create(validated_data)
+        user = super().create(validated_data)
 
         # Disable write only option for random passwords
         if random_password:
@@ -142,7 +142,7 @@ class UserSerializer(CommonFieldsSerializer):
         # If there is a password field we will hash it
         validated_data = self._hash_password_field(validated_data)
 
-        return super(UserSerializer, self).update(instance=instance, validated_data=validated_data)
+        return super().update(instance=instance, validated_data=validated_data)
 
 
 class SessionSerializer(ModelSerializer):
