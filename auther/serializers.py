@@ -3,7 +3,7 @@ from typing import Any
 from django.db.models import Model
 from rest_framework.fields import CharField, DateTimeField, BooleanField
 from rest_framework.relations import PrimaryKeyRelatedField
-from rest_framework.serializers import Serializer, ModelSerializer
+from rest_framework.serializers import Serializer
 from rest_framework.validators import UniqueValidator
 
 from auther.models import Domain, Role, User, Session, Perm
@@ -159,7 +159,7 @@ class UserSerializer(CommonFieldsSerializer):
         return super().update(instance=instance, validated_data=validated_data)
 
 
-class SessionSerializer(ModelSerializer):
+class SessionSerializer(CommonFieldsSerializer):
     token = CharField(required=True, min_length=64, max_length=64)
     user_id = PrimaryKeyRelatedField(
         source='user',
@@ -169,17 +169,15 @@ class SessionSerializer(ModelSerializer):
     )
     user = SimpleUserSerializer(read_only=True)
     user_agent = CharField(required=True, min_length=200)
-    inserted_at = DateTimeField(read_only=True)
 
     class Meta:
         model = Session
         fields = [
-            'id',
+            *CommonFieldsSerializer.Meta.fields,
             'token',
             'user_id',
             'user',
             'user_agent',
-            'inserted_at',
         ]
 
 
