@@ -13,24 +13,26 @@ tokens = Redisary(db=REDIS_DB)
 
 
 def authenticate(username: str, password: str) -> User:
+    # fetch user if exists or raise an error
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
         raise AuthenticationFailed('Username and/or password is wrong')
 
+    # check if user is available
     if user.deleted_at:
         raise AuthenticationFailed('User has been removed')
-
     if not user.active:
         raise AuthenticationFailed('Account is not active')
-
     if user.expire and user.expire < timezone.now():
         raise AuthenticationFailed('Account has expire')
 
+    # check session limitation
     session = Session.objects.filter(user_id=user.id)
     if len(session) > MAX_SESSIONS:
         raise AuthenticationFailed('Maximum number of sessions exceeded')
 
+    # check user password
     if check_password(password, user.password):
         return user
 
