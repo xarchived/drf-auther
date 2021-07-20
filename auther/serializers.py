@@ -196,6 +196,14 @@ class SessionSerializer(CommonFieldsSerializer):
 
 
 # noinspection PyAbstractClass
+class SendOtpSerializer(Serializer):
+    phone = IntegerField(
+        min_value=1000000000,
+        max_value=9999999999,
+    )
+
+
+# noinspection PyAbstractClass
 class LoginSerializer(Serializer):
     username = CharField(min_length=4, max_length=64)
     password = CharField(min_length=6, max_length=64, write_only=True)
