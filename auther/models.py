@@ -5,6 +5,7 @@ from django.db.models import (
     DateTimeField,
     IntegerField,
     ForeignKey,
+    Model,
     RESTRICT,
 )
 
@@ -48,7 +49,8 @@ class User(SafeDeleteModel, LogFieldsModel):
         }
 
 
-class Session(SafeDeleteModel, LogFieldsModel):
+class Session(Model):
     token = TextField(unique=True, max_length=64)
     user = ForeignKey(User, on_delete=RESTRICT, related_name='sessions')
     user_agent = TextField(max_length=200)
+    inserted_at = DateTimeField(auto_now_add=True)

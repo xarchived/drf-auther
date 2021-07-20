@@ -8,6 +8,7 @@ from auther.views import (
     UserViewSet,
     LoginView,
     LogoutView,
+    OtpLoginView
 )
 
 router = SimpleRouter()
@@ -19,5 +20,6 @@ router.register(r'users', UserViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('login/', LoginView.as_view()),
+    path('otplogin/', OtpLoginView.as_view()),
     path('logout/', LogoutView.as_view())
 ]

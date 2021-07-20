@@ -4,7 +4,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from auther.auth import authenticate, login, logout
+from auther.auth import logout
 from auther.decorators import check_privilege
 from auther.models import Perm, Role, Domain, User
 from auther.serializers import (
@@ -25,6 +25,7 @@ from auther.settings import (
 )
 from fancy.decorators import credential_required
 from fancy.viewsets import FancyViewSet
+from auther.auth import login_authenticate
 
 
 class PermViewSet(FancyViewSet):
@@ -71,26 +72,14 @@ class LoginView(GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request: Request) -> Response:
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+        return login_authenticate(request, self.get_serializer, otp=False)
 
-        user = authenticate(request.data['username'], request.data['password'])
-        token = login(user, request.headers['User-Agent'])
 
-        response = Response(user.as_simple_dict)
+class OtpLoginView(GenericAPIView):
+    serializer_class = LoginSerializer
 
-        response.set_cookie(
-            TOKEN_NAME,
-            token,
-            domain=TOKEN_DOMAIN,
-            path=TOKEN_PATH,
-            httponly=TOKEN_HTTPONLY,
-            max_age=TOKEN_EXPIRE,
-            samesite=TOKEN_SAMESITE,
-            secure=TOKEN_SECURE,
-        )
-
-        return response
+    def post(self, request: Request) -> Response:
+        return login_authenticate(request, self.get_serializer, otp=True)
 
 
 class LogoutView(APIView):
