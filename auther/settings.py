@@ -1,7 +1,9 @@
 from django.conf import settings
 
 DEBUG = settings.DEBUG
-REDIS_DB = settings.AUTHER['REDIS_DB']
+TOKEN_DB = settings.AUTHER['REDIS_TOKEN_DB']
+OTP_DB = settings.AUTHER['REDIS_OTP_DB']
+OTP_EXPIRE = settings.AUTHER['OTP_EXPIRE']
 MAX_SESSIONS = settings.AUTHER['MAX_SESSIONS']
 TOKEN_NAME = settings.AUTHER['TOKEN_NAME']
 TOKEN_DOMAIN = settings.AUTHER['TOKEN_DOMAIN']

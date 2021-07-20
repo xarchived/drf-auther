@@ -4,7 +4,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from auther.auth import authenticate, login, logout
+from auther.auth import authenticate, login, logout, send_otp
 from auther.decorators import check_privilege
 from auther.models import Perm, Role, Domain, User
 from auther.serializers import (
@@ -24,7 +24,7 @@ from auther.settings import (
     TOKEN_SAMESITE,
     TOKEN_SECURE,
 )
-from auther.utils import generate_otp, send_otp
+from auther.utils import generate_otp
 from fancy.decorators import credential_required
 from fancy.viewsets import FancyViewSet
 

@@ -7,11 +7,11 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
 
 from auther.models import User, Session
-from auther.settings import OTP_PROVIDER
-from auther.settings import REDIS_DB, MAX_SESSIONS, TOKEN_NAME
+from auther.settings import OTP_PROVIDER, TOKEN_DB, MAX_SESSIONS, TOKEN_NAME, OTP_DB, OTP_EXPIRE
 from auther.utils import generate_token, check_password
 
-tokens = Redisary(db=REDIS_DB)
+tokens = Redisary(db=TOKEN_DB)
+passwords = Redisary(db=OTP_DB, expire=OTP_EXPIRE)
 
 
 def authenticate(username: str, password: str) -> User:
@@ -63,6 +63,7 @@ def logout(request: Request) -> None:
 # noinspection PyUnresolvedReferences
 def send_otp(receptor: int, token: str) -> dict:
     otp_provider = importlib.import_module(OTP_PROVIDER)
+    passwords[receptor] = token
     return otp_provider.send_otp(
         receptor=receptor,
         token=token,
