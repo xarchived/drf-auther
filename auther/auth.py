@@ -1,3 +1,4 @@
+import importlib
 import json
 
 from django.utils import timezone
@@ -6,6 +7,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
 
 from auther.models import User, Session
+from auther.settings import OTP_PROVIDER
 from auther.settings import REDIS_DB, MAX_SESSIONS, TOKEN_NAME
 from auther.utils import generate_token, check_password
 
@@ -56,3 +58,12 @@ def logout(request: Request) -> None:
 
     if token_name in request._request.COOKIES:
         del tokens[request._request.COOKIES[token_name]]
+
+
+# noinspection PyUnresolvedReferences
+def send_otp(receptor: int, token: str) -> dict:
+    otp_provider = importlib.import_module(OTP_PROVIDER)
+    return otp_provider.send_otp(
+        receptor=receptor,
+        token=token,
+    )
