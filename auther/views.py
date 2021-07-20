@@ -79,7 +79,7 @@ class SendOtpView(GenericAPIView):
         phone = serializer.validated_data['phone']
         user = User.objects.filter(phone=phone).first()
         if not user:
-            user = User(phone=phone)
+            user = User(username=phone, phone=phone)
             user.save()
 
         otp = generate_otp(5)
