@@ -206,4 +206,4 @@ class SendOtpSerializer(Serializer):
 # noinspection PyAbstractClass
 class LoginSerializer(Serializer):
     username = CharField(min_length=4, max_length=64)
-    password = CharField(min_length=6, max_length=64, write_only=True)
+    password = CharField(min_length=5, max_length=64, write_only=True)
