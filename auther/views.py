@@ -95,7 +95,11 @@ class LoginView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = authenticate(request.data['username'], request.data['password'])
+        user = authenticate(
+            username=request.data['username'],
+            password=request.data['password'],
+            otp=request.query_params.get('method') == 'otp',
+        )
         token = login(user, request.headers['User-Agent'])
 
         response = Response(user.as_simple_dict)

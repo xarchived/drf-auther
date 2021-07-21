@@ -14,7 +14,7 @@ tokens = Redisary(db=TOKEN_DB)
 passwords = Redisary(db=OTP_DB, expire=OTP_EXPIRE)
 
 
-def authenticate(username: str, password: str) -> User:
+def authenticate(username: str, password: str, otp: bool = False) -> User:
     # fetch user if exists or raise an error
     try:
         user = User.objects.get(username=username)
@@ -34,8 +34,15 @@ def authenticate(username: str, password: str) -> User:
     if len(session) > MAX_SESSIONS:
         raise AuthenticationFailed('Maximum number of sessions exceeded')
 
-    # check user password
-    if check_password(password, user.password):
+    if otp:
+        if username not in passwords:
+            raise AuthenticationFailed('Username and/or password is wrong')
+
+        if password == passwords[username]:
+            del passwords[username]
+            return user
+
+    elif check_password(password, user.password):
         return user
 
     raise AuthenticationFailed('Username and/or password is wrong')
