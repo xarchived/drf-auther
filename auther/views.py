@@ -85,7 +85,7 @@ class SendOtpView(GenericAPIView):
         otp = generate_otp(5)
         send_otp(phone, otp)
 
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class LoginView(GenericAPIView):
