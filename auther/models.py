@@ -6,6 +6,8 @@ from django.db.models import (
     IntegerField,
     ForeignKey,
     RESTRICT,
+    EmailField,
+    BigIntegerField,
 )
 
 from fancy.models import SafeDeleteModel, LogFieldsModel
@@ -29,7 +31,9 @@ class Domain(SafeDeleteModel, LogFieldsModel):
 
 class User(SafeDeleteModel, LogFieldsModel):
     name = TextField(null=True)
-    username = TextField(unique=True, null=False, max_length=64)
+    username = TextField(unique=True, null=True, max_length=64)
+    email = EmailField(unique=True, null=True, max_length=320)
+    phone = BigIntegerField(unique=True, null=True)
     password = TextField(null=False, max_length=64)
     active = BooleanField(null=False, default=True)
     expire = DateTimeField(null=True)

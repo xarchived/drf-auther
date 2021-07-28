@@ -8,13 +8,13 @@ from rest_framework.exceptions import PermissionDenied, NotAuthenticated, APIExc
 from rest_framework.request import Request
 
 from auther.models import Role
-from auther.settings import REDIS_DB, TOKEN_NAME, LOGIN_PAGE, DEBUG
+from auther.settings import TOKEN_NAME, LOGIN_PAGE, DEBUG, TOKEN_DB
 
 
 class AuthMiddleware:
     def __init__(self, get_response: Callable) -> None:
         self.get_response = get_response
-        self.tokens = Redisary(db=REDIS_DB)
+        self.tokens = Redisary(db=TOKEN_DB)
 
         self.patterns = dict()
         for role in Role.objects.all():

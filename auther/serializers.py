@@ -1,7 +1,7 @@
 from typing import Any
 
 from django.db.models import Model
-from rest_framework.fields import CharField, DateTimeField, BooleanField
+from rest_framework.fields import CharField, DateTimeField, BooleanField, IntegerField, EmailField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer
 from rest_framework.validators import UniqueValidator
@@ -85,8 +85,20 @@ class DomainSerializer(CommonFieldsSerializer):
 class UserSerializer(CommonFieldsSerializer):
     name = CharField(min_length=3, max_length=64, required=False, allow_null=True, allow_blank=True)
     username = CharField(
+        required=False,
         min_length=6,
         max_length=64,
+        validators=[UniqueValidator(queryset=User.objects.all())],
+    )
+    email = EmailField(
+        required=False,
+        min_length=3,
+        max_length=320,
+    )
+    phone = IntegerField(
+        required=False,
+        min_value=1000000000,
+        max_value=9999999999,
         validators=[UniqueValidator(queryset=User.objects.all())],
     )
     password = CharField(min_length=8, max_length=64, write_only=True, required=False, allow_null=True)
@@ -114,6 +126,8 @@ class UserSerializer(CommonFieldsSerializer):
             *CommonFieldsSerializer.Meta.fields,
             'name',
             'username',
+            'email',
+            'phone',
             'password',
             'active',
             'expire',
@@ -182,6 +196,14 @@ class SessionSerializer(CommonFieldsSerializer):
 
 
 # noinspection PyAbstractClass
+class SendOtpSerializer(Serializer):
+    phone = IntegerField(
+        min_value=1000000000,
+        max_value=9999999999,
+    )
+
+
+# noinspection PyAbstractClass
 class LoginSerializer(Serializer):
     username = CharField(min_length=4, max_length=64)
-    password = CharField(min_length=6, max_length=64, write_only=True)
+    password = CharField(min_length=5, max_length=64, write_only=True)

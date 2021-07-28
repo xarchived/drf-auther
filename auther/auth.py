@@ -1,3 +1,4 @@
+import importlib
 import json
 
 from django.utils import timezone
@@ -6,13 +7,14 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.request import Request
 
 from auther.models import User, Session
-from auther.settings import REDIS_DB, MAX_SESSIONS, TOKEN_NAME
+from auther.settings import OTP_PROVIDER, TOKEN_DB, MAX_SESSIONS, TOKEN_NAME, OTP_DB, OTP_EXPIRE
 from auther.utils import generate_token, check_password
 
-tokens = Redisary(db=REDIS_DB)
+tokens = Redisary(db=TOKEN_DB)
+passwords = Redisary(db=OTP_DB, expire=OTP_EXPIRE)
 
 
-def authenticate(username: str, password: str) -> User:
+def authenticate(username: str, password: str, otp: bool = False) -> User:
     # fetch user if exists or raise an error
     try:
         user = User.objects.get(username=username)
@@ -32,8 +34,15 @@ def authenticate(username: str, password: str) -> User:
     if len(session) > MAX_SESSIONS:
         raise AuthenticationFailed('Maximum number of sessions exceeded')
 
-    # check user password
-    if check_password(password, user.password):
+    if otp:
+        if username not in passwords:
+            raise AuthenticationFailed('Username and/or password is wrong')
+
+        if password == passwords[username]:
+            del passwords[username]
+            return user
+
+    elif check_password(password, user.password):
         return user
 
     raise AuthenticationFailed('Username and/or password is wrong')
@@ -56,3 +65,13 @@ def logout(request: Request) -> None:
 
     if token_name in request._request.COOKIES:
         del tokens[request._request.COOKIES[token_name]]
+
+
+# noinspection PyUnresolvedReferences
+def send_otp(receptor: int, token: str) -> dict:
+    otp_provider = importlib.import_module(OTP_PROVIDER)
+    passwords[receptor] = token
+    return otp_provider.send_otp(
+        receptor=receptor,
+        token=token,
+    )

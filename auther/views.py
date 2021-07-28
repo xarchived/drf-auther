@@ -4,7 +4,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from auther.auth import authenticate, login, logout
+from auther.auth import authenticate, login, logout, send_otp
 from auther.decorators import check_privilege
 from auther.models import Perm, Role, Domain, User
 from auther.serializers import (
@@ -13,6 +13,7 @@ from auther.serializers import (
     DomainSerializer,
     UserSerializer,
     LoginSerializer,
+    SendOtpSerializer,
 )
 from auther.settings import (
     TOKEN_NAME,
@@ -23,6 +24,7 @@ from auther.settings import (
     TOKEN_SAMESITE,
     TOKEN_SECURE,
 )
+from auther.utils import generate_otp
 from fancy.decorators import credential_required
 from fancy.viewsets import FancyViewSet
 
@@ -67,6 +69,25 @@ class UserViewSet(FancyViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
+class SendOtpView(GenericAPIView):
+    serializer_class = SendOtpSerializer
+
+    def post(self, request: Request) -> Response:
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        phone = serializer.validated_data['phone']
+        user = User.objects.filter(phone=phone).first()
+        if not user:
+            user = User(username=phone, phone=phone)
+            user.save()
+
+        otp = generate_otp(5)
+        send_otp(phone, otp)
+
+        return Response(status=status.HTTP_200_OK)
+
+
 class LoginView(GenericAPIView):
     serializer_class = LoginSerializer
 
@@ -74,7 +95,11 @@ class LoginView(GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = authenticate(request.data['username'], request.data['password'])
+        user = authenticate(
+            username=request.data['username'],
+            password=request.data['password'],
+            otp=request.query_params.get('method') == 'otp',
+        )
         token = login(user, request.headers['User-Agent'])
 
         response = Response(user.as_simple_dict)

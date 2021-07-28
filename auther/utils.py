@@ -4,6 +4,12 @@ import string
 import bcrypt
 
 
+def generate_otp(length: int) -> str:
+    numbers = string.digits
+    otp = ''.join(secrets.choice(numbers) for _ in range(length))
+    return otp
+
+
 def generate_password(length: int) -> str:
     alphabet = string.ascii_letters + string.digits
     password = ''.join(secrets.choice(alphabet) for _ in range(length))

@@ -38,6 +38,8 @@ class SimpleUserSerializer(CommonFieldsSerializer):
             *CommonFieldsSerializer.Meta.fields,
             'name',
             'username',
+            'email',
+            'phone',
             'active',
             'expire',
             'domain_id',
