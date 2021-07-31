@@ -51,7 +51,7 @@ class UserViewSet(FancyViewSet):
     @credential_required
     @check_privilege
     def create(self, request, *args, **kwargs):
-        return super().create(request=request, *args, **kwargs)
+        return super().create(request, *args, **kwargs)
 
     @credential_required
     @check_privilege
