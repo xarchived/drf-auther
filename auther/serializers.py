@@ -111,6 +111,13 @@ class UserSerializer(CommonFieldsSerializer):
         allow_null=True,
     )
     domain = SimpleDomainSerializer(read_only=True)
+    parent_id = PrimaryKeyRelatedField(
+        source='parent',
+        queryset=User.objects.all(),
+        required=False,
+        allow_null=True,
+    )
+    parent = SimpleUserSerializer(read_only=True)
     roles_ids = PrimaryKeyRelatedField(
         source='roles',
         many=True,
@@ -133,6 +140,8 @@ class UserSerializer(CommonFieldsSerializer):
             'expire',
             'domain_id',
             'domain',
+            'parent_id',
+            'parent',
             'roles_ids',
             'roles',
         ]
