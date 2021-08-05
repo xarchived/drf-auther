@@ -51,7 +51,7 @@ class UserViewSet(FancyViewSet):
     @credential_required
     @check_privilege
     def create(self, request, *args, **kwargs):
-        return super().create(request=request, *args, **kwargs)
+        return super().create(request, *args, **kwargs)
 
     @credential_required
     @check_privilege
@@ -85,7 +85,7 @@ class SendOtpView(GenericAPIView):
         otp = generate_otp(5)
         send_otp(phone, otp)
 
-        return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class LoginView(GenericAPIView):

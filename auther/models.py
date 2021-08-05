@@ -38,6 +38,7 @@ class User(SafeDeleteModel, LogFieldsModel):
     active = BooleanField(null=False, default=True)
     expire = DateTimeField(null=True)
     domain = ForeignKey(Domain, on_delete=RESTRICT, related_name='users', null=True)
+    parent = ForeignKey('self', on_delete=RESTRICT, related_name='children', null=True)
     roles = ManyToManyField(Role, related_name='users')
 
     @property
