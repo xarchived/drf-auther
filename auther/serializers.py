@@ -1,6 +1,7 @@
 from typing import Any
 
 from django.db.models import Model
+from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField, DateTimeField, BooleanField, IntegerField, EmailField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer
@@ -214,5 +215,19 @@ class SendOtpSerializer(Serializer):
 
 # noinspection PyAbstractClass
 class LoginSerializer(Serializer):
-    username = CharField(min_length=4, max_length=64)
-    password = CharField(min_length=5, max_length=64, write_only=True)
+    username = CharField(min_length=4, max_length=64, required=False)
+    phone = IntegerField(
+        min_value=1000000000,
+        max_value=9999999999,
+        required=False,
+    )
+    password = CharField(min_length=5, max_length=64, write_only=True, required=False)
+
+    def validate(self, data):
+        username = data.get('username')
+        phone = data.get('phone')
+
+        if not username and not phone:
+            raise ValidationError('an identifier field is required')
+
+        return super().validate(data)
