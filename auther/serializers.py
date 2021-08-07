@@ -219,7 +219,7 @@ class LoginSerializer(Serializer):
     phone = IntegerField(
         min_value=1000000000,
         max_value=9999999999,
-        required=False
+        required=False,
     )
     password = CharField(min_length=5, max_length=64, write_only=True, required=False)
 
