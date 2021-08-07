@@ -228,6 +228,6 @@ class LoginSerializer(Serializer):
         phone = data.get('phone')
 
         if not username and not phone:
-            raise ValidationError('at least one date input required.')
+            raise ValidationError('an identifier field is required')
 
         return super().validate(data)
