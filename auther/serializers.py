@@ -224,8 +224,8 @@ class LoginSerializer(Serializer):
     password = CharField(min_length=5, max_length=64, write_only=True, required=False)
 
     def validate(self, data):
-        username = data.get('username', None)
-        phone = data.get('phone', None)
+        username = data.get('username')
+        phone = data.get('phone')
 
         if not username and not phone:
             raise ValidationError('at least one date input required.')
