@@ -81,9 +81,11 @@ class SendOtpView(GenericAPIView):
         user = User.objects.filter(phone=phone).first()
         if not user:
             user = User(phone=phone)
-            role = Role.objects.get(name=DEFAULT_ROLE)
             user.save()
-            user.roles.add(role)
+
+            if DEFAULT_ROLE:
+                role = Role.objects.get(name=DEFAULT_ROLE)
+                user.roles.add(role)
 
         otp = generate_otp(5)
         send_otp(phone, otp)
