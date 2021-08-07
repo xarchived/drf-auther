@@ -14,10 +14,14 @@ tokens = Redisary(db=TOKEN_DB)
 passwords = Redisary(db=OTP_DB, expire=OTP_EXPIRE)
 
 
-def authenticate(username: str, password: str, otp: bool = False) -> User:
+def authenticate(username: str, phone: int, password: str, otp: bool = False) -> User:
     # fetch user if exists or raise an error
+    user = None
     try:
-        user = User.objects.get(username=username)
+        if username:
+            user = User.objects.get(username=username)
+        if phone:
+            user = User.objects.get(phone=phone)
     except User.DoesNotExist:
         raise AuthenticationFailed('Username and/or password is wrong')
 
