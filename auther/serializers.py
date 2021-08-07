@@ -224,9 +224,6 @@ class LoginSerializer(Serializer):
     password = CharField(min_length=5, max_length=64, write_only=True, required=False)
 
     def validate(self, data):
-        """
-        Validation of username, email, phone.
-        """
         username_validate = data.get('username', None)
         phone_validate = data.get('phone', None)
 
