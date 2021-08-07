@@ -23,6 +23,7 @@ from auther.settings import (
     TOKEN_EXPIRE,
     TOKEN_SAMESITE,
     TOKEN_SECURE,
+    DEFAULT_ROLE,
 )
 from auther.utils import generate_otp
 from fancy.decorators import credential_required
@@ -80,7 +81,10 @@ class SendOtpView(GenericAPIView):
         user = User.objects.filter(phone=phone).first()
         if not user:
             user = User(username=phone, phone=phone)
+            role = Role.objects.get(name=DEFAULT_ROLE)
             user.save()
+            user.roles.add(role)
+
 
         otp = generate_otp(5)
         send_otp(phone, otp)
