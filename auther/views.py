@@ -23,7 +23,6 @@ from auther.settings import (
     TOKEN_EXPIRE,
     TOKEN_SAMESITE,
     TOKEN_SECURE,
-    DEFAULT_ROLE,
 )
 from auther.utils import generate_otp
 from fancy.decorators import credential_required
@@ -80,11 +79,8 @@ class SendOtpView(GenericAPIView):
         phone = serializer.validated_data['phone']
         user = User.objects.filter(phone=phone).first()
         if not user:
-            user = User(username=phone, phone=phone)
-            role = Role.objects.get(name=DEFAULT_ROLE)
+            user = User(phone=phone)
             user.save()
-            user.roles.add(role)
-
 
         otp = generate_otp(5)
         send_otp(phone, otp)
@@ -100,8 +96,9 @@ class LoginView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         user = authenticate(
-            username=request.data['username'],
-            password=request.data['password'],
+            username=serializer.validated_data.get('username'),
+            phone=serializer.validated_data.get('phone'),
+            password=serializer.validated_data.get('password'),
             otp=request.query_params.get('method') == 'otp',
         )
         token = login(user, request.headers['User-Agent'])
