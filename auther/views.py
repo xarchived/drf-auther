@@ -79,7 +79,7 @@ class SendOtpView(GenericAPIView):
         phone = serializer.validated_data['phone']
         user = User.objects.filter(phone=phone).first()
         if not user:
-            user = User(username=phone, phone=phone)
+            user = User(phone=phone)
             user.save()
 
         otp = generate_otp(5)
@@ -96,8 +96,9 @@ class LoginView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         user = authenticate(
-            username=request.data['username'],
-            password=request.data['password'],
+            username=serializer.validated_data.get('username'),
+            phone=serializer.validated_data.get('phone'),
+            password=serializer.validated_data.get('password'),
             otp=request.query_params.get('method') == 'otp',
         )
         token = login(user, request.headers['User-Agent'])

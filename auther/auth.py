@@ -3,7 +3,7 @@ import json
 
 from django.utils import timezone
 from redisary import Redisary
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.request import Request
 
 from auther.models import User, Session
@@ -14,10 +14,15 @@ tokens = Redisary(db=TOKEN_DB)
 passwords = Redisary(db=OTP_DB, expire=OTP_EXPIRE)
 
 
-def authenticate(username: str, password: str, otp: bool = False) -> User:
+def authenticate(username: str, phone: int, password: str, otp: bool = False) -> User:
     # fetch user if exists or raise an error
     try:
-        user = User.objects.get(username=username)
+        if username:
+            user = User.objects.get(username=username)
+        elif phone:
+            user = User.objects.get(phone=phone)
+        else:
+            raise ValidationError('Identifier is not provided')
     except User.DoesNotExist:
         raise AuthenticationFailed('Username and/or password is wrong')
 
