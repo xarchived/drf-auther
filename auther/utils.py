@@ -3,6 +3,8 @@ import string
 
 import bcrypt
 
+from auther.models import User
+
 
 def generate_otp(length: int) -> str:
     numbers = string.digits
@@ -29,3 +31,13 @@ def check_password(password: str, hashed_password: str) -> bool:
         return True
 
     return False
+
+
+def user_to_dict(user: User) -> dict:
+    return {
+        'id': user.id,
+        'name': user.name,
+        'username': user.name,
+        'domain': user.domain.name if user.domain else None,
+        'roles': [role.name for role in user.roles.all().order_by('-level')],
+    }

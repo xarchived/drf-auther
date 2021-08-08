@@ -8,7 +8,7 @@ from rest_framework.request import Request
 
 from auther.models import User, Session
 from auther.settings import OTP_PROVIDER, TOKEN_DB, MAX_SESSIONS, TOKEN_NAME, OTP_DB, OTP_EXPIRE
-from auther.utils import generate_token, check_password
+from auther.utils import generate_token, check_password, user_to_dict
 
 tokens = Redisary(db=TOKEN_DB)
 passwords = Redisary(db=OTP_DB, expire=OTP_EXPIRE)
@@ -59,7 +59,7 @@ def login(user: User, user_agent: str) -> str:
     session = Session(token=token, user=user, user_agent=user_agent)
     session.save()
 
-    tokens[token] = json.dumps(user.as_simple_dict)
+    tokens[token] = json.dumps(user_to_dict(user))
 
     return token
 
