@@ -41,17 +41,6 @@ class User(SafeDeleteModel, LogFieldsModel):
     parent = ForeignKey('self', on_delete=RESTRICT, related_name='children', null=True)
     roles = ManyToManyField(Role, related_name='users')
 
-    @property
-    def as_simple_dict(self) -> dict:
-        # noinspection PyUnresolvedReferences
-        return {
-            'id': self.id,
-            'name': self.name,
-            'username': self.name,
-            'domain': self.domain.name if self.domain else None,
-            'roles': [role.name for role in self.roles.all().order_by('-level')],
-        }
-
 
 class Session(SafeDeleteModel, LogFieldsModel):
     token = TextField(unique=True, max_length=64)

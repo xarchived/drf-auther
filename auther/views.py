@@ -25,7 +25,7 @@ from auther.settings import (
     TOKEN_SECURE,
     DEFAULT_ROLE,
 )
-from auther.utils import generate_otp
+from auther.utils import generate_otp, user_to_dict
 from fancy.decorators import credential_required
 from fancy.viewsets import FancyViewSet
 
@@ -108,7 +108,7 @@ class LoginView(GenericAPIView):
         )
         token = login(user, request.headers['User-Agent'])
 
-        response = Response(user.as_simple_dict)
+        response = Response(user_to_dict(user))
 
         response.set_cookie(
             TOKEN_NAME,
