@@ -1,3 +1,4 @@
+from django.http import Http404
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
@@ -26,8 +27,20 @@ from auther.settings import (
     DEFAULT_ROLE,
 )
 from auther.utils import generate_otp, user_to_dict
-from fancy.decorators import credential_required
+from fancy.decorators import credential_required, queryset_credential_handler
 from fancy.viewsets import FancyViewSet
+
+
+class MeViewSet(FancyViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    @queryset_credential_handler
+    def get_queryset(self):
+        return super().get_queryset().filter(pk=self.credential['id'])
+
+    def create(self, request, *args, **kwargs):
+        raise Http404()
 
 
 class PermViewSet(FancyViewSet):
