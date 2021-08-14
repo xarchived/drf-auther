@@ -15,12 +15,17 @@ passwords = Redisary(db=OTP_DB, expire=OTP_EXPIRE)
 
 
 def authenticate(username: str, phone: int, password: str, otp: bool = False) -> User:
+    identifier: str
+    user: User
+
     # fetch user if exists or raise an error
     try:
         if username:
             user = User.objects.get(username=username)
+            identifier = username
         elif phone:
             user = User.objects.get(phone=phone)
+            identifier = str(phone)
         else:
             raise ValidationError('Identifier is not provided')
     except User.DoesNotExist:
@@ -40,11 +45,11 @@ def authenticate(username: str, phone: int, password: str, otp: bool = False) ->
         raise AuthenticationFailed('Maximum number of sessions exceeded')
 
     if otp:
-        if username not in passwords:
+        if identifier not in passwords:
             raise AuthenticationFailed('Username and/or password is wrong')
 
-        if password == passwords[username]:
-            del passwords[username]
+        if password == passwords[identifier]:
+            del passwords[identifier]
             return user
 
     elif check_password(password, user.password):
