@@ -39,5 +39,5 @@ def user_to_dict(user: User) -> dict:
         'name': user.name,
         'username': user.name,
         'domain': user.domain.name if user.domain else None,
-        'roles': [role.name for role in user.roles.all().order_by('-level')],
+        'roles': [role.name for role in user.roles.order_by('-level')],
     }
