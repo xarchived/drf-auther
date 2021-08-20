@@ -206,6 +206,14 @@ class SessionSerializer(CommonFieldsSerializer):
 
 
 # noinspection PyAbstractClass
+class SetRoleSerializer(Serializer):
+    role_id = PrimaryKeyRelatedField(
+        source='role',
+        queryset=Role.objects.all(),
+    )
+
+
+# noinspection PyAbstractClass
 class SendOtpSerializer(Serializer):
     phone = IntegerField(
         min_value=1000000000,
