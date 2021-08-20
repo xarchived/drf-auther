@@ -1,5 +1,6 @@
 from django.http import Http404
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -7,6 +8,7 @@ from rest_framework.views import APIView
 
 from auther.auth import authenticate, login, logout, send_otp
 from auther.decorators import check_privilege
+from auther.exceptions import AlreadySet
 from auther.models import Perm, Role, Domain, User
 from auther.serializers import (
     PermSerializer,
@@ -14,7 +16,7 @@ from auther.serializers import (
     DomainSerializer,
     UserSerializer,
     LoginSerializer,
-    SendOtpSerializer,
+    SendOtpSerializer, SetRoleSerializer,
 )
 from auther.settings import (
     TOKEN_NAME,
@@ -81,6 +83,18 @@ class UserViewSet(FancyViewSet):
     @check_privilege
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+    @action(detail=True, methods=['post'])
+    def set_role(self, request, pk=None):
+        serializer = SetRoleSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = User.objects.get(pk=pk)
+        if user.roles:
+            raise AlreadySet('already has a role')
+
+        user.roles.add(serializer.validated_data['role'])
+        user.save()
 
 
 class SendOtpView(GenericAPIView):
