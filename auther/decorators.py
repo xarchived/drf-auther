@@ -2,11 +2,11 @@ from rest_framework.request import Request
 
 from auther.exceptions import PrivilegeError
 from auther.models import Role
-from fancy.viewsets import FancyViewSet
+from fancy.views import CredentialAPIView
 
 
 def check_privilege(func):
-    def get_user_level(self: FancyViewSet) -> int:
+    def get_user_level(self: CredentialAPIView) -> int:
         if not self.credential['roles']:
             raise PrivilegeError('You do not have any privilege')
 

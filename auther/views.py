@@ -5,6 +5,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
 from auther.auth import authenticate, login, logout, send_otp
 from auther.decorators import check_privilege
@@ -30,10 +31,10 @@ from auther.settings import (
 )
 from auther.utils import generate_otp, user_to_dict
 from fancy.decorators import credential_required, queryset_credential_handler
-from fancy.viewsets import FancyViewSet
+from fancy.views import CredentialAPIView
 
 
-class MeViewSet(FancyViewSet):
+class MeViewSet(ModelViewSet, CredentialAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -45,22 +46,22 @@ class MeViewSet(FancyViewSet):
         raise Http404()
 
 
-class PermViewSet(FancyViewSet):
+class PermViewSet(ModelViewSet):
     queryset = Perm.objects.all()
     serializer_class = PermSerializer
 
 
-class RoleViewSet(FancyViewSet):
+class RoleViewSet(ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
 
-class DomainViewSet(FancyViewSet):
+class DomainViewSet(ModelViewSet):
     queryset = Domain.objects.all()
     serializer_class = DomainSerializer
 
 
-class UserViewSet(FancyViewSet):
+class UserViewSet(ModelViewSet, CredentialAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
