@@ -1,11 +1,10 @@
-from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from auther.auth import authenticate, login, logout, send_otp
 from auther.decorators import check_privilege
@@ -17,7 +16,8 @@ from auther.serializers import (
     DomainSerializer,
     UserSerializer,
     LoginSerializer,
-    SendOtpSerializer, SetRoleSerializer,
+    SendOtpSerializer,
+    SetRoleSerializer,
 )
 from auther.settings import (
     TOKEN_NAME,
@@ -30,20 +30,34 @@ from auther.settings import (
     DEFAULT_ROLE,
 )
 from auther.utils import generate_otp, user_to_dict
-from fancy.decorators import credential_required, queryset_credential_handler
+from fancy.decorators import credential_required
 from fancy.views import CredentialAPIView
 
 
-class MeViewSet(ModelViewSet, CredentialAPIView):
+class SelfViewSet(GenericViewSet, CredentialAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-    @queryset_credential_handler
-    def get_queryset(self):
-        return super().get_queryset().filter(pk=self.credential['id'])
+    def get_user(self) -> User:
+        return self.get_queryset().get(pk=self.credential['id'])
 
-    def create(self, request, *args, **kwargs):
-        raise Http404()
+    def retrieve(self, request: Request) -> Response:
+        if not self.credential:
+            return Response()
+
+        user = self.get_user()
+        serializer = self.get_serializer(user)
+
+        return Response(serializer.data)
+
+    @credential_required
+    def update(self, request: Request) -> Response:
+        user = self.get_user()
+        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
 
 
 class PermViewSet(ModelViewSet):

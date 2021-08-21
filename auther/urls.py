@@ -9,7 +9,7 @@ from auther.views import (
     LoginView,
     LogoutView,
     SendOtpView,
-    MeViewSet,
+    SelfViewSet,
 )
 
 router = SimpleRouter()
@@ -17,10 +17,10 @@ router.register(r'perms', PermViewSet)
 router.register(r'roles', RoleViewSet)
 router.register(r'domains', DomainViewSet)
 router.register(r'users', UserViewSet)
-router.register(r'me', MeViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('self/', SelfViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'update'})),
     path('login/', LoginView.as_view()),
     path('logout/', LogoutView.as_view()),
     path('send_otp/', SendOtpView.as_view()),
