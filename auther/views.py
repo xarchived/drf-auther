@@ -29,7 +29,7 @@ from auther.settings import (
     TOKEN_SECURE,
     DEFAULT_ROLE,
 )
-from auther.utils import generate_otp, user_to_dict
+from auther.utils import generate_otp
 from fancy.decorators import credential_required
 from fancy.views import CredentialAPIView
 
@@ -150,7 +150,8 @@ class LoginView(GenericAPIView):
         )
         token = login(user, request.headers['User-Agent'])
 
-        response = Response(user_to_dict(user))
+        serializer = UserSerializer(user)
+        response = Response(serializer.data)
 
         response.set_cookie(
             TOKEN_NAME,
