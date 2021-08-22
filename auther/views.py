@@ -34,7 +34,7 @@ from fancy.decorators import credential_required
 from fancy.views import CredentialAPIView
 
 
-class SelfViewSet(GenericViewSet, CredentialAPIView):
+class MeViewSet(GenericViewSet, CredentialAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
