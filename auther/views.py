@@ -1,6 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -104,7 +104,7 @@ class UserViewSet(ModelViewSet, CredentialAPIView):
         serializer = SetRoleSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = User.objects.get(pk=pk)
+        user = get_object_or_404(User, pk=pk)
         if user.roles.count() == 0:
             raise AlreadySet('already has a role')
 
