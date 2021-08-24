@@ -111,6 +111,9 @@ class UserViewSet(ModelViewSet, CredentialAPIView):
         user.roles.add(serializer.validated_data['role'])
         user.save()
 
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
 
 class SendOtpView(GenericAPIView):
     serializer_class = SendOtpSerializer
