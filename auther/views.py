@@ -59,6 +59,21 @@ class MeViewSet(GenericViewSet, CredentialAPIView):
 
         return Response(serializer.data)
 
+    @action(detail=False, methods=['post'])
+    def set_role(self, request):
+        serializer = SetRoleSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = get_object_or_404(User, pk=self.credential['id'])
+        if user.roles.count() != 0:
+            raise AlreadySet('already has a role')
+
+        user.roles.add(serializer.validated_data['role'])
+        user.save()
+
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
+
 
 class PermViewSet(ModelViewSet):
     queryset = Perm.objects.all()
@@ -98,21 +113,6 @@ class UserViewSet(ModelViewSet, CredentialAPIView):
     @check_privilege
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
-
-    @action(detail=True, methods=['post'])
-    def set_role(self, request, pk=None):
-        serializer = SetRoleSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        user = get_object_or_404(User, pk=pk)
-        if user.roles.count() != 0:
-            raise AlreadySet('already has a role')
-
-        user.roles.add(serializer.validated_data['role'])
-        user.save()
-
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
 
 
 class SendOtpView(GenericAPIView):
