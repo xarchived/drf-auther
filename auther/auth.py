@@ -2,17 +2,14 @@ import importlib
 import json
 
 from django.utils import timezone
-from redisary import Redisary
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.request import Request
 
+from auther.db import passwords, tokens
 from auther.models import User, Session
 from auther.serializers import UserSerializer
-from auther.settings import OTP_PROVIDER, TOKEN_DB, MAX_SESSIONS, TOKEN_NAME, OTP_DB, OTP_EXPIRE
+from auther.settings import OTP_PROVIDER, MAX_SESSIONS, TOKEN_NAME
 from auther.utils import generate_token, check_password
-
-tokens = Redisary(db=TOKEN_DB)
-passwords = Redisary(db=OTP_DB, expire=OTP_EXPIRE)
 
 
 def authenticate(username: str, phone: int, password: str, otp: bool = False) -> User:
@@ -46,11 +43,11 @@ def authenticate(username: str, phone: int, password: str, otp: bool = False) ->
         raise AuthenticationFailed('Maximum number of sessions exceeded')
 
     if otp:
-        if identifier not in passwords:
+        if not passwords.exists(identifier):
             raise AuthenticationFailed('Username and/or password is wrong')
 
-        if password == passwords[identifier]:
-            del passwords[identifier]
+        if password == passwords.get(identifier):
+            passwords.delete(identifier)
             return user
 
     elif check_password(password, user.password):
@@ -66,7 +63,7 @@ def login(user: User, user_agent: str) -> str:
     session.save()
 
     serializer = UserSerializer(user)
-    tokens[token] = json.dumps(serializer.data)
+    tokens.set(token, json.dumps(serializer.data))
 
     return token
 
@@ -76,13 +73,13 @@ def logout(request: Request) -> None:
     token_name = TOKEN_NAME
 
     if token_name in request._request.COOKIES:
-        del tokens[request._request.COOKIES[token_name]]
+        passwords.delete(request._request.COOKIES[token_name])
 
 
 # noinspection PyUnresolvedReferences
 def send_otp(receptor: int, token: str) -> dict:
     otp_provider = importlib.import_module(OTP_PROVIDER)
-    passwords[receptor] = token
+    passwords.set(receptor, token, ex=OTP_EXPIRE)
     return otp_provider.send_otp(
         receptor=receptor,
         token=token,
