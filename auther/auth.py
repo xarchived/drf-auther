@@ -1,5 +1,5 @@
 import importlib
-import json
+import pickle
 
 from django.utils import timezone
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
@@ -7,7 +7,6 @@ from rest_framework.request import Request
 
 from auther.db import passwords, tokens
 from auther.models import User, Session
-from auther.serializers import UserSerializer
 from auther.settings import OTP_PROVIDER, MAX_SESSIONS, TOKEN_NAME
 from auther.utils import generate_token, check_password
 
@@ -62,8 +61,7 @@ def login(user: User, user_agent: str) -> str:
     session = Session(token=token, user=user, user_agent=user_agent)
     session.save()
 
-    serializer = UserSerializer(user)
-    tokens.set(token, json.dumps(serializer.data))
+    tokens.set(token, pickle.dumps(user))
 
     return token
 

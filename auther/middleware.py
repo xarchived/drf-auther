@@ -1,4 +1,4 @@
-import json
+import pickle
 import re
 from typing import Any, Callable
 
@@ -50,7 +50,7 @@ class AuthMiddleware:
 
             raise NotAuthenticated('Token not found')
 
-        request.credential = json.loads(tokens.get(token))
+        request.credential = pickle.loads(tokens.get(token))
 
     def _check_permission(self, request: Request) -> None:
         if not self.patterns:
@@ -62,8 +62,8 @@ class AuthMiddleware:
         if request.credential is None:
             raise NotAuthenticated('Token dose not exist')
 
-        for role in request.credential['roles']:
-            if self._authorized(request, role):
+        for role in request.credential.roles:
+            if self._authorized(request, role.name):
                 return
 
         raise PermissionDenied('Access Denied')
