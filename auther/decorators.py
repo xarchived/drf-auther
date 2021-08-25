@@ -7,10 +7,10 @@ from fancy.views import CredentialAPIView
 
 def check_privilege(func):
     def get_user_level(self: CredentialAPIView) -> int:
-        if not self.credential['roles']:
-            raise PrivilegeError('You do not have any privilege')
+        role = self.credential.roles.first()
 
-        role = Role.objects.get(name=self.credential['roles'][-1])
+        if not role:
+            raise PrivilegeError('You do not have any privilege')
 
         return role.level
 

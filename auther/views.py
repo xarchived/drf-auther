@@ -39,7 +39,7 @@ class MeViewSet(GenericViewSet, CredentialAPIView):
     serializer_class = UserSerializer
 
     def get_user(self) -> User:
-        return self.get_queryset().get(pk=self.credential['id'])
+        return self.get_queryset().get(pk=self.credential.id)
 
     def retrieve(self, request: Request) -> Response:
         if not self.credential:
@@ -64,7 +64,7 @@ class MeViewSet(GenericViewSet, CredentialAPIView):
         serializer = SetRoleSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = get_object_or_404(User, pk=self.credential['id'])
+        user = get_object_or_404(User, pk=self.credential.id)
         if user.roles.count() != 0:
             raise AlreadySet('already has a role')
 
