@@ -39,7 +39,7 @@ def check_privilege(func):
         user_level = get_user_level(self)
         request_level = get_request_level(self, request)
 
-        if user_level <= request_level:
+        if request_level >= user_level:
             raise PrivilegeError()
 
         return func(*args, **kwargs)
