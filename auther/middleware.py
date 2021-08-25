@@ -3,18 +3,17 @@ import re
 from typing import Any, Callable
 
 from django.http import JsonResponse
-from redisary import Redisary
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated, APIException
 from rest_framework.request import Request
 
+from auther.db import tokens
 from auther.models import Role
-from auther.settings import TOKEN_NAME, LOGIN_PAGE, DEBUG, TOKEN_DB
+from auther.settings import TOKEN_NAME, LOGIN_PAGE, DEBUG
 
 
 class AuthMiddleware:
     def __init__(self, get_response: Callable) -> None:
         self.get_response = get_response
-        self.tokens = Redisary(db=TOKEN_DB)
 
         self.patterns = dict()
         for role in Role.objects.all():
@@ -37,20 +36,21 @@ class AuthMiddleware:
 
         return False
 
-    def _fill_credential(self, request: Request) -> None:
+    @staticmethod
+    def _fill_credential(request: Request) -> None:
         request.credential = None
         token = request.COOKIES.get(TOKEN_NAME)
 
         if not token:
             return
 
-        if token not in self.tokens:
+        if not tokens.exists(token):
             if request.path == LOGIN_PAGE:
                 return
 
             raise NotAuthenticated('Token not found')
 
-        request.credential = json.loads(self.tokens[token])
+        request.credential = json.loads(tokens.get(token))
 
     def _check_permission(self, request: Request) -> None:
         if not self.patterns:
