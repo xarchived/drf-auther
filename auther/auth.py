@@ -7,7 +7,7 @@ from rest_framework.request import Request
 
 from auther.db import passwords, tokens
 from auther.models import User, Session
-from auther.settings import OTP_PROVIDER, MAX_SESSIONS, TOKEN_NAME
+from auther.settings import OTP_PROVIDER, MAX_SESSIONS, TOKEN_NAME, OTP_EXPIRE
 from auther.utils import generate_token, check_password
 
 
@@ -74,10 +74,11 @@ def logout(request: Request) -> None:
         passwords.delete(request._request.COOKIES[token_name])
 
 
-# noinspection PyUnresolvedReferences
 def send_otp(receptor: int, token: str) -> dict:
-    otp_provider = importlib.import_module(OTP_PROVIDER)
     passwords.set(receptor, token, ex=OTP_EXPIRE)
+
+    otp_provider = importlib.import_module(OTP_PROVIDER)
+    # noinspection PyUnresolvedReferences
     return otp_provider.send_otp(
         receptor=receptor,
         token=token,
