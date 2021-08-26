@@ -51,13 +51,20 @@ class MeViewSet(GenericViewSet, CredentialAPIView):
         return Response(serializer.data)
 
     @credential_required
-    def update(self, request: Request) -> Response:
+    def update(self, request: Request, *args, **kwargs) -> Response:
+        partial = kwargs.pop('partial', False)
+
         user = self.get_user()
-        serializer = self.get_serializer(user, data=request.data, partial=True)
+        serializer = self.get_serializer(user, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
         return Response(serializer.data)
+
+    @credential_required
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
 
     @action(detail=False, methods=['post'])
     def set_role(self, request):
