@@ -42,12 +42,11 @@ def authenticate(username: str, phone: int, password: str, otp: bool = False) ->
         raise AuthenticationFailed('Maximum number of sessions exceeded')
 
     if otp:
-        if not passwords.exists(identifier):
-            raise AuthenticationFailed('Username and/or password is wrong')
-
-        if password == passwords.get(identifier):
+        if passwords.exists(identifier) == 1 and password == str(passwords.get(identifier), encoding='utf-8'):
             passwords.delete(identifier)
             return user
+
+        raise AuthenticationFailed('Username and/or password is wrong')
 
     elif check_password(password, user.password):
         return user
