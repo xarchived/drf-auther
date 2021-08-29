@@ -1,5 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotAuthenticated
 from rest_framework.generics import GenericAPIView, get_object_or_404
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -68,6 +69,9 @@ class MeViewSet(GenericViewSet, CredentialAPIView):
 
     @action(detail=False, methods=['post'])
     def set_role(self, request):
+        if not self.credential:
+            raise NotAuthenticated('No credential found')
+
         serializer = SetRoleSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
