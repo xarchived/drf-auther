@@ -10,7 +10,7 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from auther.auth import authenticate, login, logout, send_otp
 from auther.decorators import check_privilege
 from auther.exceptions import AlreadySet
-from auther.models import Perm, Role, Domain, User
+from auther.models import Perm, Role, Domain, User, Session
 from auther.serializers import (
     PermSerializer,
     RoleSerializer,
@@ -19,6 +19,7 @@ from auther.serializers import (
     LoginSerializer,
     SendOtpSerializer,
     SetRoleSerializer,
+    SessionSerializer,
 )
 from auther.settings import (
     TOKEN_NAME,
@@ -124,6 +125,11 @@ class UserViewSet(ModelViewSet, CredentialAPIView):
     @check_privilege
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+
+class SessionViewSet(ModelViewSet):
+    queryset = Session.objects.all()
+    serializer_class = SessionSerializer
 
 
 class SendOtpView(GenericAPIView):
