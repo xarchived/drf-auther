@@ -48,6 +48,9 @@ def authenticate(username: str, phone: int, password: str, otp: bool = False) ->
 
         raise AuthenticationFailed('Username and/or password is wrong')
 
+    if not user.password:
+        raise AuthenticationFailed('Empty password')
+
     elif check_password(password, user.password):
         return user
 
