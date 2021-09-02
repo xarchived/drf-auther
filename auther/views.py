@@ -41,7 +41,7 @@ class MeViewSet(GenericViewSet, CredentialAPIView):
     serializer_class = UserSerializer
 
     def get_user(self) -> User:
-        return self.get_queryset().get(pk=self.credential.id)
+        return get_object_or_404(self.get_queryset(), self.credential.id)
 
     def retrieve(self, request: Request) -> Response:
         if not self.credential:
