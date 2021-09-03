@@ -22,6 +22,7 @@ class Role(SafeDeleteModel, LogFieldsModel):
     name = TextField(unique=True, null=False)
     perms = ManyToManyField(Perm, related_name='roles')
     level = IntegerField(null=False, default=0)
+    child_limit = IntegerField(null=True)
 
 
 class Domain(SafeDeleteModel, LogFieldsModel):
