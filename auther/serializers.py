@@ -55,6 +55,8 @@ class RoleSerializer(CommonFieldsSerializer):
         allow_null=True,
     )
     perms = SimplePermSerializer(many=True, read_only=True)
+    level = IntegerField(required=False, min_value=-10000000, max_value=10000000)
+    child_limit = IntegerField(required=False, min_value=0, max_value=100000)
 
     class Meta:
         model = Role
@@ -63,6 +65,8 @@ class RoleSerializer(CommonFieldsSerializer):
             'name',
             'perms_ids',
             'perms',
+            'level',
+            'child_limit',
         ]
 
 

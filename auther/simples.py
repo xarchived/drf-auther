@@ -18,6 +18,8 @@ class SimpleRoleSerializer(CommonFieldsSerializer):
         fields = [
             *CommonFieldsSerializer.Meta.fields,
             'name',
+            'level',
+            'child_limit',
         ]
 
 
