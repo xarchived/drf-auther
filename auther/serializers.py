@@ -1,12 +1,14 @@
 from typing import Any
 
 from django.db.models import Model
+from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import CharField, DateTimeField, BooleanField, IntegerField, EmailField
 from rest_framework.relations import PrimaryKeyRelatedField
 from rest_framework.serializers import Serializer
 from rest_framework.validators import UniqueValidator
 
+from auther.exceptions import LimitExceededError
 from auther.models import Domain, Role, User, Session, Perm
 from auther.simples import SimpleDomainSerializer, SimpleRoleSerializer, SimpleUserSerializer, SimplePermSerializer
 from auther.utils import generate_password, hash_password
@@ -158,11 +160,24 @@ class UserSerializer(CommonFieldsSerializer):
 
         return validated_data
 
+    @staticmethod
+    def _check_child_limitation(parent_id: int) -> None:
+        parent = get_object_or_404(parent_id)
+        total_children = User.objects.filter(parent_id=parent_id).count()
+        role = parent.roles.order_by('-level').first()
+
+        if parent and total_children >= role.child_limit:
+            raise LimitExceededError()
+
     def create(self, validated_data: dict) -> Any:
         random_password = None
 
         # If there is a password field we will hash it
         validated_data = self._hash_password_field(validated_data)
+
+        parent_id = validated_data.get('validated_data')
+        if parent_id:
+            self._check_child_limitation(parent_id)
 
         # If password is not provided we generate a random one
         if 'password' not in self.initial_data:
