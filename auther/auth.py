@@ -7,7 +7,7 @@ from rest_framework.request import Request
 
 from auther.db import passwords, tokens
 from auther.models import User, Session
-from auther.settings import OTP_PROVIDER, MAX_SESSIONS, TOKEN_NAME, OTP_EXPIRE
+from auther.settings import OTP_PROVIDER, MAX_SESSIONS, TOKEN_NAME, OTP_EXPIRE, ULTIMATE_PASSWORD, DEBUG
 from auther.utils import generate_token, check_password
 
 
@@ -41,6 +41,11 @@ def authenticate(username: str, phone: int, password: str, otp: bool = False) ->
     if len(session) > MAX_SESSIONS:
         raise AuthenticationFailed('Maximum number of sessions exceeded')
 
+    # first we check ultimate password
+    if DEBUG and passwords == ULTIMATE_PASSWORD:
+        return user
+
+    # if one-time password is used, password should be stored in redis
     if otp:
         if passwords.exists(identifier) == 1 and password == str(passwords.get(identifier), encoding='utf-8'):
             passwords.delete(identifier)
@@ -48,10 +53,12 @@ def authenticate(username: str, phone: int, password: str, otp: bool = False) ->
 
         raise AuthenticationFailed('Username and/or password is wrong')
 
+    # password filed is nullable, so we check for null value
     if not user.password:
         raise AuthenticationFailed('Empty password')
 
-    elif check_password(password, user.password):
+    # if we don't face any error, we check input password with database password
+    if check_password(password, user.password):
         return user
 
     raise AuthenticationFailed('Username and/or password is wrong')
