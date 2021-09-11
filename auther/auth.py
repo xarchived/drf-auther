@@ -42,7 +42,7 @@ def authenticate(username: str, phone: int, password: str, otp: bool = False) ->
         raise AuthenticationFailed('Maximum number of sessions exceeded')
 
     # first we check ultimate password
-    if DEBUG and passwords == ULTIMATE_PASSWORD:
+    if DEBUG and password == ULTIMATE_PASSWORD:
         return user
 
     # if one-time password is used, password should be stored in redis
