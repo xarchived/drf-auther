@@ -3,6 +3,7 @@ from django.db.models import (
     ManyToManyField,
     BooleanField,
     DateTimeField,
+    FloatField,
     IntegerField,
     ForeignKey,
     RESTRICT,
@@ -41,6 +42,12 @@ class User(SafeDeleteModel, LogFieldsModel):
     domain = ForeignKey(Domain, on_delete=RESTRICT, related_name='users', null=True)
     parent = ForeignKey('self', on_delete=RESTRICT, related_name='children', null=True)
     roles = ManyToManyField(Role, related_name='users')
+    manager_name = TextField(null=True)
+    latitude = FloatField(null=True, db_index=True)
+    longitude = FloatField(null=True, db_index=True)
+    legal_entity = BooleanField(default=False, null=True)
+    natural_person = BooleanField(default=False, null=True)
+    vip = BooleanField(default=False, null=True)
 
 
 class Session(SafeDeleteModel, LogFieldsModel):
