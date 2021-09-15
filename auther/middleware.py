@@ -8,7 +8,7 @@ from rest_framework.request import Request
 
 from auther.db import tokens
 from auther.models import Role
-from auther.settings import TOKEN_NAME, LOGIN_PAGE, DEBUG
+from auther.settings import TOKEN_NAME, DEBUG, PRIVILEGED
 
 
 class AuthMiddleware:
@@ -45,7 +45,7 @@ class AuthMiddleware:
             return
 
         if not tokens.exists(token):
-            if request.path == LOGIN_PAGE:
+            if request.path in PRIVILEGED:
                 return
 
             raise NotAuthenticated('Token not found')
