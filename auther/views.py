@@ -33,7 +33,7 @@ from auther.settings import (
 )
 from auther.utils import generate_otp
 from fancy.decorators import credential_required
-from fancy.views import CredentialAPIView
+from fancy.views import CredentialAPIView, DynamicFilterAPIView
 
 
 class MeViewSet(GenericViewSet, CredentialAPIView):
@@ -87,22 +87,22 @@ class MeViewSet(GenericViewSet, CredentialAPIView):
         return Response(serializer.data)
 
 
-class PermViewSet(ModelViewSet):
+class PermViewSet(ModelViewSet, DynamicFilterAPIView):
     queryset = Perm.objects.all()
     serializer_class = PermSerializer
 
 
-class RoleViewSet(ModelViewSet):
+class RoleViewSet(ModelViewSet, DynamicFilterAPIView):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
 
 
-class DomainViewSet(ModelViewSet):
+class DomainViewSet(ModelViewSet, DynamicFilterAPIView):
     queryset = Domain.objects.all()
     serializer_class = DomainSerializer
 
 
-class UserViewSet(ModelViewSet, CredentialAPIView):
+class UserViewSet(ModelViewSet, DynamicFilterAPIView, CredentialAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -127,7 +127,7 @@ class UserViewSet(ModelViewSet, CredentialAPIView):
         return super().destroy(request, *args, **kwargs)
 
 
-class SessionViewSet(ModelViewSet):
+class SessionViewSet(ModelViewSet, DynamicFilterAPIView):
     queryset = Session.objects.all()
     serializer_class = SessionSerializer
 
