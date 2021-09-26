@@ -77,8 +77,6 @@ class MeViewSet(GenericViewSet, CredentialAPIView):
         serializer.is_valid(raise_exception=True)
 
         user = get_object_or_404(User, pk=self.credential.id)
-        if user.roles.count() != 0:
-            raise AlreadySet('already has a role')
 
         user.roles.add(serializer.validated_data['role'])
         user.save()
