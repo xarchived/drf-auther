@@ -9,7 +9,6 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from auther.auth import authenticate, login, logout, send_otp
 from auther.decorators import check_privilege
-from auther.exceptions import AlreadySet
 from auther.models import Perm, Role, Domain, User, Session
 from auther.serializers import (
     PermSerializer,
